@@ -2,8 +2,8 @@
 
 namespace Phlib\JobQueue\Console;
 
-use Phlib\JobQueue\BeanstalkDb;
-use Phlib\JobQueue\Scheduler;
+use Phlib\JobQueue\Beanstalk\Scheduled;
+use Phlib\JobQueue\DbScheduler;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phlib\Console\Command\DaemonCommand;
@@ -25,7 +25,7 @@ class MonitorCommand extends DaemonCommand
     protected $beanstalk;
 
     /**
-     * @var Scheduler
+     * @var DbScheduler
      */
     protected $scheduler;
 
@@ -34,7 +34,7 @@ class MonitorCommand extends DaemonCommand
         $this->db = new DbAdapter(['host' => '127.0.0.1', 'dbname' => 'test']);
         $this->beanstalk = (new Factory())->create('localhost');
         $this->processingDelay = 5;
-        $this->scheduler = new Scheduler($this->db, 60, 120);
+        $this->scheduler = new DbScheduler($this->db, 60, 120);
     }
 
     protected function configure()
