@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+// autoload
+$autoloadFiles = [__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php'];
+foreach ($autoloadFiles as $autoloadFile) {
+    if (file_exists($autoloadFile)) {
+        require_once $autoloadFile;
+        break;
+    }
+}
+
+// use
+use Symfony\Component\Console\Application;
+use \Phlib\JobQueue\Console\MonitorCommand;
+
+$application = new Application();
+$application->add(new MonitorCommand());
+$application->run();

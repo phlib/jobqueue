@@ -1,0 +1,48 @@
+{
+    "name": "phlib/jobqueue",
+    "type": "library",
+    "description": "Job Queue implementation.",
+    "keywords": ["job", "task", "queue", "beanstalk"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Luke Richards",
+            "email": "luke.richards@emailcenteruk.com",
+            "role": "developer"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/phlib/beanstalk"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/phlib/db"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/phlib/console"
+        }
+    ],
+    "require": {
+        "php": "~5.4",
+
+        "phlib/beanstalk": "dev-master",
+        "phlib/db": "dev-master",
+        "phlib/console": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phlib\\JobQueue\\": "src/"
+        }
+    },
+    "autoload-dev": {
+       "psr-4": {
+           "Phlib\\JobQueue\\Tests\\": "tests/"
+       }
+    }
+}
