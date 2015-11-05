@@ -4,10 +4,9 @@ namespace Phlib\JobQueue\Beanstalk;
 
 use Phlib\Beanstalk\BeanstalkInterface;
 use Phlib\Beanstalk\Beanstalk;
-use Phlib\JobQueue\Beanstalk\Job;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
-use Phlib\JobQueue\DbScheduler;
+use Phlib\JobQueue\SchedulerInterface;
 
 class Scheduled implements JobQueueInterface
 {
@@ -17,15 +16,15 @@ class Scheduled implements JobQueueInterface
     private $beanstalk;
 
     /**
-     * @var DbScheduler
+     * @var SchedulerInterface
      */
     private $scheduler;
 
     /**
      * @param BeanstalkInterface $beanstalk
-     * @param DbScheduler $scheduler
+     * @param SchedulerInterface $scheduler
      */
-    public function __construct(BeanstalkInterface $beanstalk, DbScheduler $scheduler)
+    public function __construct(BeanstalkInterface $beanstalk, SchedulerInterface $scheduler)
     {
         $this->beanstalk = $beanstalk;
         $this->scheduler = $scheduler;

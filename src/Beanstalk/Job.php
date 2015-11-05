@@ -4,6 +4,10 @@ namespace Phlib\JobQueue\Beanstalk;
 
 use Phlib\JobQueue\JobInterface;
 
+/**
+ * Class Job
+ * @package Phlib\JobQueue\Beanstalk
+ */
 class Job implements JobInterface
 {
     /**
