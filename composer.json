@@ -40,5 +40,6 @@
        "psr-4": {
            "Phlib\\JobQueue\\Tests\\": "tests/"
        }
-    }
+    },
+    "bin": ["bin/jobqueue-cli"]
 }
