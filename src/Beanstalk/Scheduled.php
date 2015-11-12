@@ -55,8 +55,8 @@ class Scheduled implements JobQueueInterface
      */
     public function retrieve($queue)
     {
-        $this->beanstalk->ignore('default');
         $this->beanstalk->watch($queue);
+        $this->beanstalk->ignore('default');
         $jobData = $this->beanstalk->reserve();
         if ($jobData === false) {
             return false;
