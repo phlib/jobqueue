@@ -2,8 +2,8 @@
 
 namespace Phlib\JobQueue\Beanstalk;
 
-use Phlib\Beanstalk\BeanstalkInterface;
-use Phlib\Beanstalk\Beanstalk;
+use Phlib\Beanstalk\Connection\ConnectionInterface;
+use Phlib\Beanstalk\Connection;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\SchedulerInterface;
@@ -11,7 +11,7 @@ use Phlib\JobQueue\SchedulerInterface;
 class Scheduled implements JobQueueInterface
 {
     /**
-     * @var BeanstalkInterface
+     * @var ConnectionInterface
      */
     private $beanstalk;
 
@@ -21,10 +21,10 @@ class Scheduled implements JobQueueInterface
     private $scheduler;
 
     /**
-     * @param BeanstalkInterface $beanstalk
+     * @param ConnectionInterface $beanstalk
      * @param SchedulerInterface $scheduler
      */
-    public function __construct(BeanstalkInterface $beanstalk, SchedulerInterface $scheduler)
+    public function __construct(ConnectionInterface $beanstalk, SchedulerInterface $scheduler)
     {
         $this->beanstalk = $beanstalk;
         $this->scheduler = $scheduler;
@@ -36,9 +36,9 @@ class Scheduled implements JobQueueInterface
     public function put($queue, $data, array $options)
     {
         $options = $options + [
-            'priority' => Beanstalk::DEFAULT_PRIORITY,
-            'delay'    => Beanstalk::DEFAULT_DELAY,
-            'ttr'      => Beanstalk::DEFAULT_TTR
+            'priority' => Connection::DEFAULT_PRIORITY,
+            'delay'    => Connection::DEFAULT_DELAY,
+            'ttr'      => Connection::DEFAULT_TTR
         ];
 
         if ($this->scheduler->shouldBeScheduled($options['delay'])) {
