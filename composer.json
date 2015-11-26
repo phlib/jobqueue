@@ -18,15 +18,15 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/phlib/console"
+            "url": "https://github.com/phlib/console-process"
         }
     ],
     "require": {
         "php": "~5.4",
 
-        "phlib/beanstalk": "~0.1@alpha",
+        "phlib/beanstalk": "~0.2",
         "phlib/db": "dev-master",
-        "phlib/console": "dev-master"
+        "phlib/console-process": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.4"
