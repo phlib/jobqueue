@@ -2,11 +2,10 @@
 
 namespace Phlib\JobQueue\Console;
 
-use Phlib\JobQueue\Beanstalk\Scheduled;
 use Phlib\JobQueue\DbScheduler;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Phlib\Console\Command\DaemonCommand;
+use Phlib\ConsoleProcess\Command\DaemonCommand;
 use Phlib\Db\Adapter as DbAdapter;
 use Phlib\Beanstalk\Beanstalk;
 use Phlib\Beanstalk\Factory;
@@ -44,10 +43,9 @@ class MonitorCommand extends DaemonCommand
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @inheritdoc
      */
-    protected function doExecute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         while ($job = $this->scheduler->retrieve()) {
             $output->writeln("Job {$job['id']} added.");
