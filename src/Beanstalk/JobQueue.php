@@ -8,7 +8,7 @@ use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\SchedulerInterface;
 
-class Scheduled implements JobQueueInterface
+class JobQueue implements JobQueueInterface
 {
     /**
      * @var ConnectionInterface
