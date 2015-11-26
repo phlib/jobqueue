@@ -41,5 +41,5 @@
            "Phlib\\JobQueue\\Tests\\": "tests/"
        }
     },
-    "bin": ["bin/jobqueue-cli"]
+    "bin": ["bin/jobqueue"]
 }
