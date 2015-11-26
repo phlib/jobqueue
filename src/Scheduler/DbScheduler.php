@@ -1,6 +1,6 @@
 <?php
 
-namespace Phlib\JobQueue;
+namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Beanstalk\Beanstalk;
 use Phlib\Db\Adapter as DbAdapter;

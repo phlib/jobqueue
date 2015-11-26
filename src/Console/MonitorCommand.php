@@ -2,7 +2,7 @@
 
 namespace Phlib\JobQueue\Console;
 
-use Phlib\JobQueue\DbScheduler;
+use Phlib\JobQueue\Scheduler\DbScheduler;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phlib\ConsoleProcess\Command\DaemonCommand;

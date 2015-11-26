@@ -1,6 +1,6 @@
 <?php
 
-namespace Phlib\JobQueue;
+namespace Phlib\JobQueue\Scheduler;
 
 /**
  * Interface SchedulerInterface
