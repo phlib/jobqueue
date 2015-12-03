@@ -6,7 +6,7 @@ use Phlib\Beanstalk\Connection\ConnectionInterface;
 use Phlib\Beanstalk\Connection;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
-use Phlib\JobQueue\SchedulerInterface;
+use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
 class JobQueue implements JobQueueInterface
 {
