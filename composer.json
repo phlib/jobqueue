@@ -15,10 +15,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/phlib/db"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/phlib/console-process"
         }
     ],
     "require": {
@@ -26,7 +22,7 @@
 
         "phlib/beanstalk": "~0.2",
         "phlib/db": "dev-master",
-        "phlib/console-process": "dev-master"
+        "phlib/console-process": "~0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.4"
