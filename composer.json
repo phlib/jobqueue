@@ -20,7 +20,7 @@
     "require": {
         "php": "~5.4",
 
-        "phlib/beanstalk": "~0.2",
+        "phlib/beanstalk": "~1.0.0",
         "phlib/db": "dev-master",
         "phlib/console-process": "~0.1"
     },
