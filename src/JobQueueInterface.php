@@ -5,16 +5,14 @@ namespace Phlib\JobQueue;
 interface JobQueueInterface
 {
     /**
-     * @param string $queue
-     * @param string $data
-     * @param array $options
+     * @param JobInterface $job
      * @return $this
      */
-    public function put($queue, $data, array $options);
+    public function put(JobInterface $job);
 
     /**
      * @param string $queue
-     * @return Job
+     * @return JobInterface
      */
     public function retrieve($queue);
 
