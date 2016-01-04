@@ -33,20 +33,14 @@ class JobQueue implements JobQueueInterface
     /**
      * @inheritdoc
      */
-    public function put($queue, $data, array $options)
+    public function put(JobInterface $job)
     {
-        $options = $options + [
-            'priority' => Connection::DEFAULT_PRIORITY,
-            'delay'    => Connection::DEFAULT_DELAY,
-            'ttr'      => Connection::DEFAULT_TTR
-        ];
-
-        if ($this->scheduler->shouldBeScheduled($options['delay'])) {
-            return $this->scheduler->store($queue, $data, $options);
+        if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
+            return $this->scheduler->store($job);
         } else {
             return $this->beanstalk
-                ->useTube($queue)
-                ->put($data, $options['priority'], $options['delay'], $options['ttr']);
+                ->useTube($job->getQueue())
+                ->put(serialize($job->toSpecification()), $job->getPriority(), $job->getDelay(), $job->getTtr());
         }
     }
 
