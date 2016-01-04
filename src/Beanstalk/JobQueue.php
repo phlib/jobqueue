@@ -13,12 +13,12 @@ class JobQueue implements JobQueueInterface
     /**
      * @var ConnectionInterface
      */
-    private $beanstalk;
+    protected $beanstalk;
 
     /**
      * @var SchedulerInterface
      */
-    private $scheduler;
+    protected $scheduler;
 
     /**
      * @param ConnectionInterface $beanstalk
