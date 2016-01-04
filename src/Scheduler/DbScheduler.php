@@ -4,6 +4,7 @@ namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Beanstalk\Connection;
 use Phlib\Db\Adapter as DbAdapter;
+use Phlib\JobQueue\JobInterface;
 
 /**
  * Class Scheduler
@@ -49,21 +50,18 @@ class DbScheduler implements SchedulerInterface
     /**
      * @inheritdoc
      */
-    public function store($queue, $data, array $options)
+    public function store(JobInterface $job)
     {
-        $delay    = (isset($options['delay'])) ? $options['delay'] : 0;
-        $priority = (isset($options['priority'])) ? $options['priority'] : Beanstalk::DEFAULT_PRIORITY;
-        $ttr      = (isset($options['ttr'])) ? $options['ttr'] : Beanstalk::DEFAULT_TTR;
-
+        $dbTimestampFormat = 'Y-m-d H:i:s';
         return (boolean)$this->dbAdapter->insert(
             'scheduled_queue',
             [
-                'tube'         => $queue,
-                'data'         => serialize($data),
-                'scheduled_ts' => date('Y-m-d H:i:s', time() + $delay),
-                'priority'     => $priority,
-                'ttr'          => $ttr,
-                'create_ts'    => date('Y-m-d H:i:s')
+                'tube'         => $job->getQueue(),
+                'data'         => serialize($job->getBody()),
+                'scheduled_ts' => $job->getDatetimeDelay()->format($dbTimestampFormat),
+                'priority'     => $job->getPriority(),
+                'ttr'          => $job->getTtr(),
+                'create_ts'    => date($dbTimestampFormat)
             ]
         );
     }
