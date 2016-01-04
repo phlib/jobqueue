@@ -20,15 +20,26 @@ interface JobInterface
     public function getBody();
 
     /**
-     * @return \DateTime
+     * @return int
      */
     public function getDelay();
 
     /**
-     * @param \DateTime $value
+     * @return \DateTime
+     */
+    public function getDatetimeDelay();
+
+    /**
+     * @param int $value
      * @return $this
      */
-    public function setDelay(\DateTime $value);
+    public function setDelay($value);
+
+    /**
+     * @param \DateTimeInterface $value
+     * @return $this
+     */
+    public function setDatetimeDelay(\DateTimeInterface $value);
 
     /**
      * @return int
