@@ -4,6 +4,7 @@ namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Beanstalk\Connection;
 use Phlib\Db\Adapter as DbAdapter;
+use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\JobInterface;
 
 /**
@@ -111,7 +112,7 @@ class DbScheduler implements SchedulerInterface
     public function remove(array $job)
     {
         if (!isset($job['id'])) {
-            throw new \InvalidArgumentException();
+            throw new InvalidArgumentException('Missing required scheduled job ID.');
         }
         return (boolean)$this->dbAdapter->delete('scheduled_queue', '`id` = ?', [$job['id']]);
     }
