@@ -2,6 +2,8 @@
 
 namespace Phlib\JobQueue\Scheduler;
 
+use Phlib\JobQueue\JobInterface;
+
 /**
  * Interface SchedulerInterface
  * @package Phlib\JobQueue
@@ -15,12 +17,10 @@ interface SchedulerInterface
     public function shouldBeScheduled($delay);
 
     /**
-     * @param string $queue
-     * @param mixed $data
-     * @param array $options
+     * @param JobInterface $job
      * @return boolean
      */
-    public function store($queue, $data, array $options);
+    public function store(JobInterface $job);
 
     /**
      * @return array|false
