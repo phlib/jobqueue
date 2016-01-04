@@ -2,7 +2,7 @@
 
 namespace Phlib\JobQueue\Scheduler;
 
-use Phlib\Beanstalk\Beanstalk;
+use Phlib\Beanstalk\Connection;
 use Phlib\Db\Adapter as DbAdapter;
 
 /**
