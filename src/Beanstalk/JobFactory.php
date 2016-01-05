@@ -26,7 +26,7 @@ class JobFactory
         }
 
         $specification = @unserialize($data['body']);
-        if ($specification === false) {
+        if (!is_array($specification)) {
             $job = static::createFromSpecification(['queue' => false, 'id' => $data['id'], 'body' => 'false']);
             throw new JobRuntimeException($job, 'Failed to extract job data.');
         }
