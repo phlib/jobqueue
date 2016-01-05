@@ -64,7 +64,7 @@ class JobFactory
      * @param JobInterface $job
      * @return string
      */
-    public function serializeBody(JobInterface $job)
+    public static function serializeBody(JobInterface $job)
     {
         return serialize([
             'queue'    => $job->getQueue(),
