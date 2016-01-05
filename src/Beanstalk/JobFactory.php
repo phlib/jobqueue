@@ -5,6 +5,7 @@ namespace Phlib\JobQueue\Beanstalk;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Exception\JobRuntimeException;
 use Phlib\JobQueue\JobInterface;
+use Phlib\Beanstalk\Connection;
 
 /**
  * Class JobFactory
