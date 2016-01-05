@@ -64,17 +64,4 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $job->setPriority($priority);
         $this->assertEquals($priority, $job->getPriority());
     }
-
-    public function testToSpecification()
-    {
-        $data = [
-            'queue'    => 'testQueue',
-            'body'     => 'Job Body',
-            'delay'    => 10,
-            'priority' => 5,
-            'ttr'      => 60,
-        ];
-        $job = new Job($data['queue'], $data['body'], 123, $data['delay'], $data['priority'], $data['ttr']);
-        $this->assertEquals($data, $job->toSpecification());
-    }
 }

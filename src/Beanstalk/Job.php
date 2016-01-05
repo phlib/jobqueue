@@ -160,18 +160,4 @@ class Job implements JobInterface
         $this->priority = (int)$value;
         return $this;
     }
-
-    /**
-     * @return array
-     */
-    public function toSpecification()
-    {
-        return [
-            'queue'    => $this->queue,
-            'body'     => $this->body,
-            'delay'    => $this->delay,
-            'priority' => $this->priority,
-            'ttr'      => $this->ttr
-        ];
-    }
 }

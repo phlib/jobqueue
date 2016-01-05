@@ -4,6 +4,7 @@ namespace Phlib\JobQueue\Beanstalk;
 
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Exception\JobRuntimeException;
+use Phlib\JobQueue\JobInterface;
 
 /**
  * Class JobFactory
@@ -57,5 +58,20 @@ class JobFactory
         ];
 
         return new Job($data['queue'], $data['body'], $id, $data['delay'], $data['priority'], $data['ttr']);
+    }
+
+    /**
+     * @param JobInterface $job
+     * @return string
+     */
+    public function serializeBody(JobInterface $job)
+    {
+        return serialize([
+            'queue'    => $job->getQueue(),
+            'body'     => $job->getBody(),
+            'delay'    => $job->getDelay(),
+            'priority' => $job->getPriority(),
+            'ttr'      => $job->getTtr()
+        ]);
     }
 }
