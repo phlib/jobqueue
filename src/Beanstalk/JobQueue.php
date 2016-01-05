@@ -40,7 +40,7 @@ class JobQueue implements JobQueueInterface
         } else {
             return $this->beanstalk
                 ->useTube($job->getQueue())
-                ->put(serialize($job->toSpecification()), $job->getPriority(), $job->getDelay(), $job->getTtr());
+                ->put(JobFactory::serializeBody($job), $job->getPriority(), $job->getDelay(), $job->getTtr());
         }
     }
 
@@ -51,11 +51,12 @@ class JobQueue implements JobQueueInterface
     {
         $this->beanstalk->watch($queue);
         $this->beanstalk->ignore('default');
-        $jobData = $this->beanstalk->reserve();
-        if ($jobData === false) {
+
+        $data = $this->beanstalk->reserve();
+        if ($data === false) {
             return false;
         }
-        return new Job($jobData);
+        return JobFactory::createFromRaw($data);
     }
 
     /**
@@ -71,7 +72,16 @@ class JobQueue implements JobQueueInterface
      */
     public function markAsIncomplete(JobInterface $job)
     {
-        return $this->beanstalk->release($job->getId());
+        if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
+            if ($job->getId() !== null) {
+                $this->beanstalk->delete($job->getId());
+            }
+            return $this->scheduler->store($job);
+        } else {
+            return $this->beanstalk
+                ->useTube($job->getQueue())
+                ->release($job->getId(), $job->getPriority(), $job->getDelay());
+        }
     }
 
     /**
