@@ -2,8 +2,8 @@
 
 namespace Phlib\JobQueue\Beanstalk;
 
-use Phlib\Beanstalk\Connection;
 use Phlib\JobQueue\JobInterface;
+use Phlib\Beanstalk\Connection;
 
 /**
  * Class Job
@@ -35,31 +35,6 @@ class Job implements JobInterface
      * @var int
      */
     protected $ttr;
-
-    /**
-     * @param array $data
-     * @return self
-     */
-    public static function createFromSpecification(array $data)
-    {
-        if (!isset($data['body']) || !isset($data['queue'])) {
-            throw new \InvalidArgumentException('Missing required job data.');
-        }
-
-        $id = null;
-        if (isset($data['id'])) {
-            $id = $data['id'];
-        }
-
-        // merge default values if any are missing
-        $data = $data + [
-            'delay'    => Connection::DEFAULT_DELAY,
-            'priority' => Connection::DEFAULT_PRIORITY,
-            'ttr'      => Connection::DEFAULT_TTR
-        ];
-
-        return new static($data['queue'], $data['body'], $id, $data['delay'], $data['priority'], $data['ttr']);
-    }
 
     /**
      * Job constructor.
