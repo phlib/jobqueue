@@ -28,6 +28,11 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
     protected $releaseInterval = 2000000; // 2 seconds
 
     /**
+     * @var bool
+     */
+    protected $exitOnException = false;
+
+    /**
      * @inheritdoc
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -69,6 +74,10 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                     'e_line'     => $e->getLine(),
                     'e_trace'    => $e->getTraceAsString()
                 ]);
+
+                if ($this->exitOnException) {
+                    throw $e;
+                }
             }
 
             $withinReleaseInterval = (microtime($asFloat) - $startTime) < $this->releaseInterval;
