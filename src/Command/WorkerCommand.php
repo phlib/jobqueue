@@ -6,12 +6,17 @@ use Phlib\ConsoleProcess\Command\DaemonCommand;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class WorkerCommand extends DaemonCommand
+class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var string
      */
@@ -27,17 +32,39 @@ class WorkerCommand extends DaemonCommand
         }
 
         $jobQueue = $this->getJobQueue();
+        $logger   = $this->getLogger();
+
+        $logger->debug("Retrieving jobs for {$this->queue}");
         while ($job = $jobQueue->retrieve($this->queue)) {
             try {
-                $code = $this->work($job, $input, $output);
+                $logger->info("Retrieved job {$job->getId()}");
+                $startTime = microtime(true);
+                $code      = $this->work($job, $input, $output);
+                $timeTaken = microtime(true) - $startTime;
+
+                $debugCode = var_export($code, true);
+                $logger->debug("Work completed on job {$job->getId()} with return code '{$debugCode}' taking {$timeTaken}");
+
                 if ($code != 0) {
                     throw new LogicException("Non zero exit code $code.");
                 }
                 $jobQueue->markAsComplete($job);
+                $logger->info("Job {$job->getId()} completed");
             } catch (\Exception $e) {
                 $jobQueue->markAsError($job);
+                $logger->error("Job {$job->getId()} marked as error", [
+                    'j_id'       => $job->getId(),
+                    'j_delay'    => $job->getDelay(),
+                    'j_priority' => $job->getPriority(),
+                    'j_ttr'      => $job->getTtr(),
+                    'e_message'  => $e->getMessage(),
+                    'e_file'     => $e->getFile(),
+                    'e_line'     => $e->getLine(),
+                    'e_trace'    => $e->getTraceAsString()
+                ]);
             }
         }
+        $logger->debug("Finished retrieving jobs for {$this->queue}");
     }
 
     /**
@@ -62,5 +89,16 @@ class WorkerCommand extends DaemonCommand
     protected function getJobQueue()
     {
         throw new LogicException('You must override the getJobQueue() method in the concrete command class.');
+    }
+
+    /**
+     * @return \Psr\Log\LoggerInterface|NullLogger
+     */
+    protected function getLogger()
+    {
+        if (!$this->logger) {
+            $this->logger = new NullLogger();
+        }
+        return $this->logger;
     }
 }
