@@ -23,6 +23,11 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
     protected $queue = null;
 
     /**
+     * @var bool
+     */
+    protected $exitOnException = false;
+
+    /**
      * @inheritdoc
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -62,6 +67,10 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                     'e_line'     => $e->getLine(),
                     'e_trace'    => $e->getTraceAsString()
                 ]);
+
+                if ($this->exitOnException) {
+                    throw $e;
+                }
             }
         }
         $logger->debug("Finished retrieving jobs for {$this->queue}");
