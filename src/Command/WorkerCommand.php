@@ -23,6 +23,11 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
     protected $queue = null;
 
     /**
+     * @var int
+     */
+    protected $releaseInterval = 2000000; // 2 seconds
+
+    /**
      * @inheritdoc
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -31,16 +36,18 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
             throw new InvalidArgumentException("Missing require property 'queue' to be set on Worker Command.");
         }
 
-        $jobQueue = $this->getJobQueue();
-        $logger   = $this->getLogger();
+        $jobQueue  = $this->getJobQueue();
+        $logger    = $this->getLogger();
+        $startTime = microtime($asFloat = false);
+        $withinReleaseInterval = true;
 
         $logger->debug("Retrieving jobs for {$this->queue}");
-        while ($job = $jobQueue->retrieve($this->queue)) {
+        while ($job = $jobQueue->retrieve($this->queue) && $withinReleaseInterval) {
             try {
                 $logger->info("Retrieved job {$job->getId()}");
-                $startTime = microtime(true);
-                $code      = $this->work($job, $input, $output);
-                $timeTaken = microtime(true) - $startTime;
+                $workStarted = microtime(true);
+                $code        = $this->work($job, $input, $output);
+                $timeTaken   = microtime(true) - $workStarted;
 
                 $debugCode = var_export($code, true);
                 $logger->debug("Work completed on job {$job->getId()} with return code '{$debugCode}' taking {$timeTaken}");
@@ -63,6 +70,8 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                     'e_trace'    => $e->getTraceAsString()
                 ]);
             }
+
+            $withinReleaseInterval = (microtime($asFloat) - $startTime) < $this->releaseInterval;
         }
         $logger->debug("Finished retrieving jobs for {$this->queue}");
     }
