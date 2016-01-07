@@ -42,7 +42,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         }
 
         $jobQueue  = $this->getJobQueue();
-        $logger    = $this->getLogger();
+        $logger    = $this->getLogger($output);
         $startTime = microtime($asFloat = false);
         $withinReleaseInterval = true;
 
@@ -110,9 +110,10 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
     }
 
     /**
+     * @param OutputInterface $output An OutputInterface instance
      * @return \Psr\Log\LoggerInterface|NullLogger
      */
-    protected function getLogger()
+    protected function getLogger($output)
     {
         if (!$this->logger) {
             $this->logger = new NullLogger();
