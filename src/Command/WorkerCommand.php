@@ -23,11 +23,6 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
     protected $queue = null;
 
     /**
-     * @var int
-     */
-    protected $releaseInterval = 2000000; // 2 seconds
-
-    /**
      * @var bool
      */
     protected $exitOnException = false;
@@ -41,13 +36,11 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
             throw new InvalidArgumentException("Missing require property 'queue' to be set on Worker Command.");
         }
 
-        $jobQueue  = $this->getJobQueue();
-        $logger    = $this->getLogger($output);
-        $startTime = microtime($asFloat = false);
-        $withinReleaseInterval = true;
+        $jobQueue = $this->getJobQueue();
+        $logger   = $this->getLogger($output);
 
         $logger->debug("Retrieving jobs for {$this->queue}");
-        while ($job = $jobQueue->retrieve($this->queue) && $withinReleaseInterval) {
+        while ($job = $jobQueue->retrieve($this->queue)) {
             try {
                 $logger->info("Retrieved job {$job->getId()}");
                 $workStarted = microtime(true);
@@ -79,8 +72,6 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                     throw $e;
                 }
             }
-
-            $withinReleaseInterval = (microtime($asFloat) - $startTime) < $this->releaseInterval;
         }
         $logger->debug("Finished retrieving jobs for {$this->queue}");
     }
