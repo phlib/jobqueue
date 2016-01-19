@@ -12,8 +12,16 @@ foreach ($autoloadFiles as $autoloadFile) {
 
 // use
 use Symfony\Component\Console\Application;
-use \Phlib\JobQueue\Console\MonitorCommand;
+use Phlib\JobQueue\Console\MonitorCommand;
+use Phlib\ConsoleConfiguration\Helper\ConfigurationHelper;
 
 $application = new Application();
 $application->add(new MonitorCommand());
+
+ConfigurationHelper::initHelper(
+    $application,
+    [],
+    ['filename' => 'jobqueue-config.php']
+);
+
 $application->run();

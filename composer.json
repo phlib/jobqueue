@@ -22,6 +22,7 @@
 
         "phlib/beanstalk": "~1.0.0",
         "phlib/db": "dev-master@dev",
+        "phlib/console-configuration": "^1.0",
         "phlib/console-process": "~0.1@dev",
 
         "psr/log": "~1.0.0"
