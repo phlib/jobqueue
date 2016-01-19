@@ -45,6 +45,21 @@ do {
 } while (true);
 ```
 
+## Jobqueue Script
+
+The script has a dependency on two constructed objects. The Job Queue interface and the Scheduler interface. In order 
+to provide this the following describes how they are injected into the script.
+
+jobqueue-config.php (can be located in the root or ```config``` folder.
+``` php
+<?php
+
+$app = new MyApp();
+
+return new \Phlib\JobQueue\Console\MonitorDependencies($app['jobqueue'], $app['scheduler']);
+
+```
+
 ## Table Schema
 
 ``` SQL
