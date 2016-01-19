@@ -57,7 +57,7 @@ CREATE TABLE `scheduled_queue` (
   `ttr` smallint(5) unsigned DEFAULT NULL,
   `picked_by` varchar(20) DEFAULT NULL,
   `picked_ts` timestamp NULL DEFAULT NULL,
-  `create_ts` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `create_ts` timestamp NOT NULL,
   `update_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `scheduled_ts` (`scheduled_ts`)
