@@ -22,7 +22,7 @@ class MonitorCommand extends DaemonCommand
      */
     protected $jobQueue;
 
-    protected function initialize()
+    protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $dependencies = $this->getHelper('configuration')
             ->fetch();
