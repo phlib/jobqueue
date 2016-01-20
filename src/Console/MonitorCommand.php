@@ -3,7 +3,7 @@
 namespace Phlib\JobQueue\Console;
 
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
-use Phlib\JobQueueInterface;
+use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\ConsoleProcess\Command\DaemonCommand;
 use Symfony\Component\Console\Input\InputInterface;
