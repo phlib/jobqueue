@@ -5,6 +5,16 @@ namespace Phlib\JobQueue;
 interface JobQueueInterface
 {
     /**
+     * @param string $queue
+     * @param mixed $data
+     * @param int $delay
+     * @param int $priority
+     * @param int $ttr
+     * @return JobInterface
+     */
+    public function createJob($queue, $data, $id, $delay, $priority, $ttr);
+
+    /**
      * @param JobInterface $job
      * @return $this
      */
