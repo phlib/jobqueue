@@ -39,6 +39,14 @@ class JobQueue implements JobQueueInterface
     /**
      * @inheritdoc
      */
+    public function createJob($queue, $data, $id, $delay, $priority, $ttr)
+    {
+        return new Job($queue, $data, $id, $delay, $priority, $ttr);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function put(JobInterface $job)
     {
         if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
