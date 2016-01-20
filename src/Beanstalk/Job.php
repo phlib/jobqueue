@@ -37,6 +37,11 @@ class Job implements JobInterface
     protected $ttr;
 
     /**
+     * @var mixed
+     */
+    protected $body;
+
+    /**
      * Job constructor.
      * @param string $queue
      * @param mixed $body
