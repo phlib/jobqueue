@@ -48,10 +48,21 @@ class MonitorCommand extends DaemonCommand
     {
         while ($jobData = $this->scheduler->retrieve()) {
             $output->writeln("Job {$jobData['id']} added.");
-            $job = new Job($jobData['queue'], $jobData['data'], null, $jobData['delay'], $jobData['priority'], $jobData['ttr']);
-            $this->jobQueue->put($job);
-            $this->scheduler->remove($job);
+            $this->jobQueue->put($this->createJob($jobData));
+            $this->scheduler->remove($jobData['id']);
         }
+    }
+
+    protected function createJob(array $schedulerJob)
+    {
+        return $this->jobQueue->createJob(
+            $schedulerJob['queue'],
+            $schedulerJob['data'],
+            null,
+            $schedulerJob['delay'],
+            $schedulerJob['priority'],
+            $schedulerJob['ttr']
+        );
     }
 
     /**
