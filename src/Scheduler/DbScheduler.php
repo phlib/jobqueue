@@ -4,7 +4,6 @@ namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Beanstalk\Connection;
 use Phlib\Db\Adapter as DbAdapter;
-use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\JobInterface;
 
 /**
@@ -77,12 +76,12 @@ class DbScheduler implements SchedulerInterface
                 picked_by = CONNECTION_ID(),
                 picked_ts = NOW()
             WHERE
-                scheduled_ts <= CURRENT_TIMESTAMP + INTERVAL {$this->minimumPickup} SECOND AND
+                scheduled_ts <= CURRENT_TIMESTAMP + INTERVAL :minimumPickup SECOND AND
                 picked_by IS NULL
             ORDER BY
                 scheduled_ts DESC
             LIMIT 1";
-        $stmt = $this->dbAdapter->query($sql);
+        $stmt = $this->dbAdapter->query($sql, ['minimumPickup' => $this->minimumPickup]);
         if ($stmt->rowCount() == 0) {
             return false; // no jobs
         }
