@@ -26,4 +26,10 @@ interface SchedulerInterface
      * @return array|false
      */
     public function retrieve();
+
+    /**
+     * @param int|string $jobId
+     * @return bool
+     */
+    public function remove($jobId);
 }
