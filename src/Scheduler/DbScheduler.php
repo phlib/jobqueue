@@ -109,11 +109,8 @@ class DbScheduler implements SchedulerInterface
     /**
      * @inheritdoc
      */
-    public function remove(array $job)
+    public function remove($jobId)
     {
-        if (!isset($job['id'])) {
-            throw new InvalidArgumentException('Missing required scheduled job ID.');
-        }
-        return (boolean)$this->dbAdapter->delete('scheduled_queue', '`id` = ?', [$job['id']]);
+        return (boolean)$this->dbAdapter->delete('scheduled_queue', '`id` = ?', [$jobId]);
     }
 }
