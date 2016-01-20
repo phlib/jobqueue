@@ -81,7 +81,7 @@ class DbScheduler implements SchedulerInterface
             ORDER BY
                 scheduled_ts DESC
             LIMIT 1";
-        $stmt = $this->dbAdapter->query($sql, ['minimumPickup' => $this->minimumPickup]);
+        $stmt = $this->dbAdapter->query($sql, [':minimumPickup' => $this->minimumPickup]);
         if ($stmt->rowCount() == 0) {
             return false; // no jobs
         }
