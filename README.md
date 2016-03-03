@@ -1,5 +1,9 @@
 # phlib/jobqueue
 
+[![Build Status](https://img.shields.io/travis/phlib/jobqueue/master.svg)](https://travis-ci.org/phlib/jobqueue)
+[![Latest Stable Version](https://img.shields.io/packagist/v/phlib/jobqueue.svg)](https://packagist.org/packages/phlib/jobqueue)
+[![Total Downloads](https://img.shields.io/packagist/dt/phlib/jobqueue.svg)](https://packagist.org/packages/phlib/jobqueue)
+
 Job Queue implementation.
 
 ## Install
