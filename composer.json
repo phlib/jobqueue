@@ -17,8 +17,13 @@
             "url": "https://github.com/phlib/db"
         }
     ],
+    "config": {
+        "platform": {
+            "php": "5.5"
+        }
+    },
     "require": {
-        "php": ">=5.5",
+        "php": "^5.5 || ^7.0",
 
         "phlib/beanstalk": "~1.0.0",
         "phlib/db": "dev-master@dev",
