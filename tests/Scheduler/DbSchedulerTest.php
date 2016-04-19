@@ -2,6 +2,8 @@
 
 namespace Phlib\JobQueue\Tests\Scheduler;
 
+use Phlib\Db\Adapter\QuotableAdapterInterface;
+use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\Scheduler\DbScheduler;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
@@ -10,51 +12,55 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
     /**
      * @var \Phlib\Db\Adapter|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $dbAdapter;
+    protected $adapter;
 
     public function setUp()
     {
         parent::setUp();
-        $this->dbAdapter = $this->getMock('\Phlib\Db\Adapter');
+        $this->adapter = $this->getMock(QuotableAdapterInterface::class);
     }
 
     public function tearDown()
     {
-        $this->dbAdapter = null;
+        $this->adapter = null;
         parent::tearDown();
     }
 
     public function testImplementsSchedulerInterface()
     {
-        $this->assertInstanceOf('\Phlib\JobQueue\Scheduler\SchedulerInterface', new DbScheduler($this->dbAdapter));
+        $this->assertInstanceOf(SchedulerInterface::class, new DbScheduler($this->adapter));
     }
 
     public function testShouldBeScheduled()
     {
         $maxDelay  = 300;
-        $scheduler = new DbScheduler($this->dbAdapter, $maxDelay);
+        $scheduler = new DbScheduler($this->adapter, $maxDelay);
         $this->assertTrue($scheduler->shouldBeScheduled($maxDelay + 1));
     }
 
     public function testShouldNotBeScheduled()
     {
         $maxDelay  = 300;
-        $scheduler = new DbScheduler($this->dbAdapter, $maxDelay);
+        $scheduler = new DbScheduler($this->adapter, $maxDelay);
         $this->assertFalse($scheduler->shouldBeScheduled(60));
     }
 
     public function testStoringJob()
     {
-        $this->dbAdapter->expects($this->any())
-            ->method('insert')
-            ->will($this->returnValue(true));
+        $pdoStatement = $this->getMock(\PDOStatement::class);
+        $pdoStatement->expects($this->any())
+            ->method('rowCount')
+            ->will($this->returnValue(1));
+        $this->adapter->expects($this->any())
+            ->method('query')
+            ->will($this->returnValue($pdoStatement));
 
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
+        $job = $this->getMock(JobInterface::class);
         $job->expects($this->any())
             ->method('getDatetimeDelay')
             ->will($this->returnValue(new \DateTime()));
 
-        $scheduler = new DbScheduler($this->dbAdapter);
+        $scheduler = new DbScheduler($this->adapter);
         $this->assertTrue($scheduler->store($job));
     }
 
@@ -65,10 +71,10 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
         $stmt->expects($this->any())
             ->method('rowCount')
             ->will($this->returnValue(0));
-        $this->dbAdapter->expects($this->any())
+        $this->adapter->expects($this->any())
             ->method('query')
             ->will($this->returnValue($stmt));
-        $scheduler = new DbScheduler($this->dbAdapter);
+        $scheduler = new DbScheduler($this->adapter);
         $this->assertFalse($scheduler->retrieve());
     }
 
@@ -89,10 +95,10 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
         $stmt->expects($this->any())
             ->method('fetch')
             ->will($this->returnValue($rowData));
-        $this->dbAdapter->expects($this->any())
+        $this->adapter->expects($this->any())
             ->method('query')
             ->will($this->returnValue($stmt));
-        $scheduler = new DbScheduler($this->dbAdapter);
+        $scheduler = new DbScheduler($this->adapter);
 
         $jobData = $scheduler->retrieve();
         $this->assertEquals(0, $jobData['delay']);
@@ -100,10 +106,14 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
 
     public function testRemove()
     {
-        $this->dbAdapter->expects($this->any())
-            ->method('delete')
-            ->will($this->returnValue(true));
-        $scheduler = new DbScheduler($this->dbAdapter);
+        $pdoStatement = $this->getMock(\PDOStatement::class);
+        $pdoStatement->expects($this->any())
+            ->method('rowCount')
+            ->will($this->returnValue(1));
+        $this->adapter->expects($this->any())
+            ->method('query')
+            ->will($this->returnValue($pdoStatement));
+        $scheduler = new DbScheduler($this->adapter);
         $this->assertTrue($scheduler->remove(234));
     }
 }
