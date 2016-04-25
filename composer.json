@@ -11,12 +11,6 @@
             "role": "developer"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/phlib/db"
-        }
-    ],
     "config": {
         "platform": {
             "php": "5.5"
