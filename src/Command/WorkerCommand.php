@@ -39,10 +39,9 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         $jobQueue = $this->getJobQueue();
         $logger   = $this->getLogger($output);
 
-        $logger->debug("Retrieving jobs for {$this->queue}");
         while ($job = $jobQueue->retrieve($this->queue)) {
             try {
-                $logger->info("Retrieved job {$job->getId()}");
+                $logger->info("Retrieved job {$job->getId()} for {$this->queue}");
                 $workStarted = microtime(true);
                 $code        = $this->work($job, $input, $output);
                 $timeTaken   = microtime(true) - $workStarted;
@@ -73,7 +72,6 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                 }
             }
         }
-        $logger->debug("Finished retrieving jobs for {$this->queue}");
     }
 
     /**
