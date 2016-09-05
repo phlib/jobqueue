@@ -131,7 +131,7 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
         $this->jobQueue->markAsComplete($job);
     }
 
-    public function testMarkAsInompleteReleasesBeanstalkJobWhenDelayIsMoreImmediate()
+    public function testMarkAsIncompleteReleasesBeanstalkJobWhenDelayIsMoreImmediate()
     {
         $jobId = 123;
         $job = $this->getMock('\Phlib\JobQueue\JobInterface');
