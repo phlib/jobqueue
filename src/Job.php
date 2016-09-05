@@ -84,7 +84,7 @@ class Job implements JobInterface
     }
 
     /**
-     * @return string
+     * @return mixed
      */
     public function getBody()
     {
