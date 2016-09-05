@@ -2,7 +2,9 @@
 
 namespace Phlib\JobQueue\Tests\Beanstalk;
 
+use Phlib\JobQueue\Beanstalk\JobFactory;
 use Phlib\JobQueue\Beanstalk\JobQueue;
+use Phlib\JobQueue\Job;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use Phlib\Beanstalk\Connection\ConnectionInterface;
 
@@ -116,6 +118,34 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
             ->method('reserve')
             ->will($this->returnValue(['id' => 234, 'body' => serialize('SomeStuffHere')]));
         $this->jobQueue->retrieve('testQueue');
+    }
+
+    /**
+     * @param mixed $jobData
+     * @dataProvider jobDataMaintainsExpectedTypeDataProvider
+     */
+    public function testJobDataMaintainsExpectedType($jobData)
+    {
+        $package = JobFactory::serializeBody(new Job('TestQueue', $jobData));
+        $this->beanstalk->expects($this->any())
+            ->method('reserve')
+            ->will($this->returnValue(['id' => 234, 'body' => $package]));
+        $job = $this->jobQueue->retrieve('TestQueue');
+        $this->assertEquals($jobData, $job->getBody());
+    }
+
+    public function jobDataMaintainsExpectedTypeDataProvider()
+    {
+        return [
+            [['foo' => 'bar', 'bar' => 'baz']],
+            ['SomeStringData'],
+            [123],
+            [123.34],
+            // [null], // <-- null not accepted
+            [[]],
+            [false],
+            [true]
+        ];
     }
 
     public function testMarkAsCompleteDeletesBeanstalkJob()
