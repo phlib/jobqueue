@@ -1,8 +1,8 @@
 <?php
 
-namespace Phlib\JobQueue\Tests\Beanstalk;
+namespace Phlib\JobQueue\Tests;
 
-use Phlib\JobQueue\Beanstalk\Job;
+use Phlib\JobQueue\Job;
 
 class JobTest extends \PHPUnit_Framework_TestCase
 {

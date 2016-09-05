@@ -5,6 +5,7 @@ namespace Phlib\JobQueue\Beanstalk;
 use Phlib\Beanstalk\Connection\ConnectionInterface;
 use Phlib\Beanstalk\Connection;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
+use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;

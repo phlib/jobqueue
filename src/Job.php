@@ -1,16 +1,17 @@
 <?php
 
-namespace Phlib\JobQueue\Beanstalk;
-
-use Phlib\JobQueue\JobInterface;
-use Phlib\Beanstalk\Connection;
+namespace Phlib\JobQueue;
 
 /**
  * Class Job
- * @package Phlib\JobQueue\Beanstalk
+ * @package Phlib\JobQueue
  */
 class Job implements JobInterface
 {
+    const DEFAULT_DELAY    = 0;
+    const DEFAULT_PRIORITY = 1024;
+    const DEFAULT_TTR      = 60;
+
     /**
      * @var string|null
      */
@@ -54,9 +55,9 @@ class Job implements JobInterface
         $queue,
         $body,
         $id = null,
-        $delay = Connection::DEFAULT_DELAY,
-        $priority = Connection::DEFAULT_PRIORITY,
-        $ttr = Connection::DEFAULT_TTR
+        $delay = self::DEFAULT_DELAY,
+        $priority = self::DEFAULT_PRIORITY,
+        $ttr = self::DEFAULT_TTR
     ) {
         $this->queue = $queue;
         $this->body  = $body;

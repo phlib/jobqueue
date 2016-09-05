@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-use \Phlib\JobQueue\Beanstalk\Job;
+use Phlib\JobQueue\Job;
 
 $delays = [0, 0, 65, 80, 100, 150, 200, 250, 300];
 $length = count($delays);
