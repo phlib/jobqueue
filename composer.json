@@ -20,9 +20,9 @@
         "php": "^5.5 || ^7.0",
 
         "phlib/beanstalk": "~1.0.0",
-        "phlib/db": "^0.0.2@dev",
+        "phlib/db": "^0.0.4@dev",
         "phlib/console-configuration": "^1.0",
-        "phlib/console-process": "^0.5@dev",
+        "phlib/console-process": "^0.7@dev",
 
         "psr/log": "~1.0.0"
     },
