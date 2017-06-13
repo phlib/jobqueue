@@ -2,12 +2,11 @@
 
 namespace Phlib\JobQueue\Scheduler;
 
-use Phlib\Beanstalk\Connection;
-use Phlib\Db\Adapter\QuotableAdapterInterface;
+use Phlib\Db\Adapter;
 use Phlib\JobQueue\JobInterface;
 
 /**
- * Class Scheduler
+ * Class DbScheduler
  * @package Phlib\JobQueue
  */
 class DbScheduler implements SchedulerInterface
@@ -28,11 +27,11 @@ class DbScheduler implements SchedulerInterface
     private $minimumPickup;
 
     /**
-     * @param QuotableAdapterInterface $adapter
+     * @param Adapter $adapter
      * @param integer $maximumDelay
      * @param integer $minimumPickup
      */
-    public function __construct(QuotableAdapterInterface $adapter, $maximumDelay = 300, $minimumPickup = 600)
+    public function __construct(Adapter $adapter, $maximumDelay = 300, $minimumPickup = 600)
     {
         $this->adapter       = $adapter;
         $this->maximumDelay  = $maximumDelay;
@@ -107,7 +106,7 @@ class DbScheduler implements SchedulerInterface
      */
     public function remove($jobId)
     {
-        $table = $this->adapter->quoteIdentifier('scheduled_queue');
+        $table = $this->adapter->quote()->identifier('scheduled_queue');
         $sql   = "DELETE FROM $table WHERE id = ?";
 
         return (bool)$this->adapter
@@ -121,7 +120,7 @@ class DbScheduler implements SchedulerInterface
      */
     protected function insert(array $data)
     {
-        $table        = $this->adapter->quoteIdentifier('scheduled_queue');
+        $table        = $this->adapter->quote()->identifier('scheduled_queue');
         $fields       = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
         $sql          = "INSERT INTO $table ($fields) VALUES ($placeholders)";

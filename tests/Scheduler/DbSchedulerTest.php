@@ -2,7 +2,7 @@
 
 namespace Phlib\JobQueue\Tests\Scheduler;
 
-use Phlib\Db\Adapter\QuotableAdapterInterface;
+use Phlib\Db\Adapter;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\Scheduler\DbScheduler;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
@@ -14,14 +14,27 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
      */
     protected $adapter;
 
+    /**
+     * @var \Phlib\Db\Adapter\QuoteHandler|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $quote;
+
     public function setUp()
     {
         parent::setUp();
-        $this->adapter = $this->getMock(QuotableAdapterInterface::class);
+        $this->adapter = $this->getMock(Adapter::class);
+
+        $this->quote = $this->getMockBuilder(Adapter\QuoteHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->adapter->expects($this->any())
+            ->method('quote')
+            ->willReturn($this->quote);
     }
 
     public function tearDown()
     {
+        $this->quote = null;
         $this->adapter = null;
         parent::tearDown();
     }
