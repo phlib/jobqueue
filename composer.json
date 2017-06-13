@@ -14,10 +14,10 @@
     "require": {
         "php": "^5.5 || ^7.0",
 
-        "phlib/beanstalk": "~1.0.0",
-        "phlib/db": "^0.0.5@dev",
+        "phlib/beanstalk": "^1.0.0",
+        "phlib/db": "^1.0.0",
         "phlib/console-configuration": "^1.0",
-        "phlib/console-process": "^0.7@dev",
+        "phlib/console-process": "^1.0.0",
 
         "psr/log": "~1.0.0"
     },
