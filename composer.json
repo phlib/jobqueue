@@ -19,7 +19,8 @@
         "phlib/console-configuration": "^1.0",
         "phlib/console-process": "^1.0.0",
 
-        "psr/log": "~1.0.0"
+        "psr/log": "~1.0.0",
+        "aws/aws-sdk-php": "^3.61"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.4"
