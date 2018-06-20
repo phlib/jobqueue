@@ -38,7 +38,7 @@ class JobQueue implements JobQueueInterface
     /**
      * @inheritdoc
      */
-    public function createJob($queue, $data, $id, $delay, $priority, $ttr)
+    public function createJob($queue, $data, $id = null, $delay = Job::DEFAULT_DELAY, $priority = Job::DEFAULT_PRIORITY, $ttr = Job::DEFAULT_TTR)
     {
         $queueName = $this->queuePrefix . $queue;
         return new Job($queueName, $data, $id, $delay, $priority, $ttr);
