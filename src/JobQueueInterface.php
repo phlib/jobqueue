@@ -7,6 +7,7 @@ interface JobQueueInterface
     /**
      * @param string $queue
      * @param mixed $data
+     * @param int|string|null $id
      * @param int $delay
      * @param int $priority
      * @param int $ttr

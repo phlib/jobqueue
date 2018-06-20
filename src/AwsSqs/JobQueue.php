@@ -58,6 +58,7 @@ class JobQueue implements JobQueueInterface
             'DelaySeconds' => $job->getDelay(),
             'MessageBody'  => JobFactory::serializeBody($job),
         ]);
+        return $this;
     }
 
     /**
@@ -127,7 +128,7 @@ class JobQueue implements JobQueueInterface
             try {
                 $result = $this->client->getQueueUrl(['QueueName' => $name]);
                 $this->queues[$name] = $result->get('QueueUrl');
-            } catch (\Aws\Sqs\Exception\SqsException $exception) {
+            } catch (SqsException $exception) {
                 throw new InvalidArgumentException("Specified queue '{$name}' does not exist", $exception->getCode(), $exception);
             }
         }
