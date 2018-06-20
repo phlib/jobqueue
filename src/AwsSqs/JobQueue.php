@@ -25,10 +25,14 @@ class JobQueue implements JobQueueInterface
     /** @var array */
     private $queues = [];
 
-    public function __construct(SqsClient $client, SchedulerInterface $scheduler)
+    /** @var string */
+    private $queuePrefix;
+
+    public function __construct(SqsClient $client, SchedulerInterface $scheduler, $queuePrefix = '')
     {
         $this->client = $client;
         $this->scheduler = $scheduler;
+        $this->queuePrefix = $queuePrefix;
     }
 
     /**
@@ -36,7 +40,8 @@ class JobQueue implements JobQueueInterface
      */
     public function createJob($queue, $data, $id, $delay, $priority, $ttr)
     {
-        return new Job($queue, $data, $id, $delay, $priority, $ttr);
+        $queueName = $this->queuePrefix . $queue;
+        return new Job($queueName, $data, $id, $delay, $priority, $ttr);
     }
 
     /**
@@ -60,8 +65,9 @@ class JobQueue implements JobQueueInterface
      */
     public function retrieve($queue)
     {
+        $queueName = $this->queuePrefix . $queue;
         $result = $this->client->receiveMessage([
-            'QueueUrl'            => $this->getQueueUrl($queue),
+            'QueueUrl'            => $this->getQueueUrl($queueName),
             'WaitTimeSeconds'     => $this->retrieveTimeout,
             'MaxNumberOfMessages' => 1
         ]);
