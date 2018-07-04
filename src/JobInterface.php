@@ -15,7 +15,7 @@ interface JobInterface
     public function getQueue();
 
     /**
-     * @return string
+     * @return mixed
      */
     public function getBody();
 
