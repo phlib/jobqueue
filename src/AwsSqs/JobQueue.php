@@ -49,16 +49,20 @@ class JobQueue implements JobQueueInterface
      */
     public function put(JobInterface $job)
     {
-        if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
-            return $this->scheduler->store($job);
-        }
+        try {
+            if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
+                return $this->scheduler->store($job);
+            }
 
-        $this->client->sendMessage([
-            'QueueUrl'     => $this->getQueueUrl($job->getQueue()),
-            'DelaySeconds' => $job->getDelay(),
-            'MessageBody'  => JobFactory::serializeBody($job),
-        ]);
-        return $this;
+            $this->client->sendMessage([
+                'QueueUrl'     => $this->getQueueUrl($job->getQueue()),
+                'DelaySeconds' => $job->getDelay(),
+                'MessageBody'  => JobFactory::serializeBody($job),
+            ]);
+            return $this;
+        } catch (SqsException $exception) {
+            throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
+        }
     }
 
     /**
@@ -66,18 +70,22 @@ class JobQueue implements JobQueueInterface
      */
     public function retrieve($queue)
     {
-        $queueName = $this->queuePrefix . $queue;
-        $result = $this->client->receiveMessage([
-            'QueueUrl'            => $this->getQueueUrl($queueName),
-            'WaitTimeSeconds'     => $this->retrieveTimeout,
-            'MaxNumberOfMessages' => 1
-        ]);
+        try {
+            $queueName = $this->queuePrefix . $queue;
+            $result = $this->client->receiveMessage([
+                'QueueUrl' => $this->getQueueUrl($queueName),
+                'WaitTimeSeconds' => $this->retrieveTimeout,
+                'MaxNumberOfMessages' => 1
+            ]);
 
-        if (!isset($result['Messages'])) {
-            return null;
+            if (!isset($result['Messages'])) {
+                return null;
+            }
+
+            return JobFactory::createFromRaw($result['Messages'][0]);
+        } catch (SqsException $exception) {
+            throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
         }
-
-        return JobFactory::createFromRaw($result['Messages'][0]);
     }
 
     /**
@@ -85,10 +93,14 @@ class JobQueue implements JobQueueInterface
      */
     public function markAsComplete(JobInterface $job)
     {
-        $this->client->deleteMessage([
-            'QueueUrl'      => $this->getQueueUrl($job->getQueue()),
-            'ReceiptHandle' => $job->getId(),
-        ]);
+        try {
+            $this->client->deleteMessage([
+                'QueueUrl'      => $this->getQueueUrl($job->getQueue()),
+                'ReceiptHandle' => $job->getId(),
+            ]);
+        } catch (SqsException $exception) {
+            throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
+        }
     }
 
     /**
@@ -106,20 +118,24 @@ class JobQueue implements JobQueueInterface
      */
     public function markAsError(JobInterface $job)
     {
-        $queue = $job->getQueue();
-        $deadletter = $this->determineDeadletterQueue($queue);
+        try {
+            $queue = $job->getQueue();
+            $deadletter = $this->determineDeadletterQueue($queue);
 
-        $this->client->deleteMessage([
-            'QueueUrl'      => $this->getQueueUrl($queue),
-            'ReceiptHandle' => $job->getId(),
-        ]);
+            $this->client->deleteMessage([
+                'QueueUrl'      => $this->getQueueUrl($queue),
+                'ReceiptHandle' => $job->getId(),
+            ]);
 
-        $job->setDelay(0);
-        $this->client->sendMessage([
-            'QueueUrl'     => $this->getQueueUrl($deadletter),
-            'DelaySeconds' => 0,
-            'MessageBody'  => JobFactory::serializeBody($job),
-        ]);
+            $job->setDelay(0);
+            $this->client->sendMessage([
+                'QueueUrl'     => $this->getQueueUrl($deadletter),
+                'DelaySeconds' => 0,
+                'MessageBody'  => JobFactory::serializeBody($job),
+            ]);
+        } catch (SqsException $exception) {
+            throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
+        }
     }
 
     private function getQueueUrl($name)
