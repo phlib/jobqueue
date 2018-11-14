@@ -53,7 +53,7 @@ class JobQueue implements JobQueueInterface
         }
 
         $this->client->sendMessage([
-            'QueueUrl'     => $this->getQueueUrl($job->getQueue()),
+            'QueueUrl'     => $this->getQueueUrlWithPrefix($job->getQueue()),
             'DelaySeconds' => $job->getDelay(),
             'MessageBody'  => JobFactory::serializeBody($job),
         ]);
@@ -66,7 +66,7 @@ class JobQueue implements JobQueueInterface
     public function retrieve($queue)
     {
         $result = $this->client->receiveMessage([
-            'QueueUrl'            => $this->getQueueUrl($queue),
+            'QueueUrl'            => $this->getQueueUrlWithPrefix($queue),
             'WaitTimeSeconds'     => $this->retrieveTimeout,
             'MaxNumberOfMessages' => 1
         ]);
@@ -84,7 +84,7 @@ class JobQueue implements JobQueueInterface
     public function markAsComplete(JobInterface $job)
     {
         $this->client->deleteMessage([
-            'QueueUrl'      => $this->getQueueUrl($job->getQueue()),
+            'QueueUrl'      => $this->getQueueUrlWithPrefix($job->getQueue()),
             'ReceiptHandle' => $job->getId(),
         ]);
     }
@@ -108,7 +108,7 @@ class JobQueue implements JobQueueInterface
         $deadletter = $this->determineDeadletterQueue($queue);
 
         $this->client->deleteMessage([
-            'QueueUrl'      => $this->getQueueUrl($queue),
+            'QueueUrl'      => $this->getQueueUrlWithPrefix($queue),
             'ReceiptHandle' => $job->getId(),
         ]);
 
@@ -120,10 +120,14 @@ class JobQueue implements JobQueueInterface
         ]);
     }
 
-    private function getQueueUrl($name)
+    private function getQueueUrlWithPrefix($name)
     {
         $name = $this->queuePrefix . $name;
+        return $this->getQueueUrl($name);
+    }
 
+    private function getQueueUrl($name)
+    {
         if (!isset($this->queues[$name])) {
             try {
                 $result = $this->client->getQueueUrl(['QueueName' => $name]);
@@ -141,7 +145,7 @@ class JobQueue implements JobQueueInterface
         $name = $this->queuePrefix . $queue;
         try {
             $result = $this->client->getQueueAttributes([
-                'QueueUrl' => $this->getQueueUrl($queue),
+                'QueueUrl' => $this->getQueueUrlWithPrefix($queue),
                 'AttributeNames' => ['RedrivePolicy']
             ]);
             $arnJson = $result->search('Attributes.RedrivePolicy');
