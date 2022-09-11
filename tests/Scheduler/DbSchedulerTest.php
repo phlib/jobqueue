@@ -80,7 +80,7 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
 
     public function testRetrieveWithNoResults()
     {
-        $stmt = $this->getMock('\PDOStatement');
+        $stmt = $this->getMock(\PDOStatement::class);
         $stmt->expects($this->any())
             ->method('rowCount')
             ->will($this->returnValue(0));
@@ -101,7 +101,7 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
             'priority' => 1024,
             'ttr' => 60
         ];
-        $stmt = $this->getMock('\PDOStatement');
+        $stmt = $this->getMock(\PDOStatement::class);
         $stmt->expects($this->any())
             ->method('rowCount')
             ->will($this->returnValue(1));

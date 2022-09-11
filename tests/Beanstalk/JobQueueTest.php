@@ -5,6 +5,8 @@ namespace Phlib\JobQueue\Tests\Beanstalk;
 use Phlib\JobQueue\Beanstalk\JobFactory;
 use Phlib\JobQueue\Beanstalk\JobQueue;
 use Phlib\JobQueue\Job;
+use Phlib\JobQueue\JobInterface;
+use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use Phlib\Beanstalk\Connection\ConnectionInterface;
 
@@ -29,8 +31,8 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->beanstalk = $this->getMock('\Phlib\Beanstalk\Connection\ConnectionInterface');
-        $this->scheduler = $this->getMock('\Phlib\JobQueue\Scheduler\SchedulerInterface');
+        $this->beanstalk = $this->getMock(ConnectionInterface::class);
+        $this->scheduler = $this->getMock(SchedulerInterface::class);
         $this->jobQueue  = new JobQueue($this->beanstalk, $this->scheduler);
     }
 
@@ -44,7 +46,7 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
 
     public function testIsInstanceOfJobQueueInterface()
     {
-        $this->assertInstanceOf('\Phlib\JobQueue\JobQueueInterface', $this->jobQueue);
+        $this->assertInstanceOf(JobQueueInterface::class, $this->jobQueue);
     }
 
     public function testPutForImmediateJobCallsBeanstalk()
@@ -60,14 +62,14 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
             ->method('put')
             ->will($this->returnValue($jobId));
 
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
+        $job = $this->getMock(JobInterface::class);
         $this->assertEquals($jobId, $this->jobQueue->put($job));
     }
 
     public function testPutForProlongedJobCallsScheduler()
     {
         $jobId = 123;
-        $job   = $this->getMock('\Phlib\JobQueue\JobInterface');
+        $job   = $this->getMock(JobInterface::class);
 
         $this->scheduler->expects($this->any())
             ->method('shouldBeScheduled')
@@ -151,7 +153,7 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     public function testMarkAsCompleteDeletesBeanstalkJob()
     {
         $jobId = 123;
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
+        $job = $this->getMock(JobInterface::class);
         $job->expects($this->any())
             ->method('getId')
             ->will($this->returnValue($jobId));
@@ -164,7 +166,7 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     public function testMarkAsIncompleteReleasesBeanstalkJobWhenDelayIsMoreImmediate()
     {
         $jobId = 123;
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
+        $job = $this->getMock(JobInterface::class);
         $job->expects($this->any())
             ->method('getId')
             ->will($this->returnValue($jobId));
@@ -183,7 +185,7 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     public function testMarkAsIncompleteReleasesBeanstalkJobWhenDelayIsMoreProlonged()
     {
         $jobId = 123;
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
+        $job = $this->getMock(JobInterface::class);
         $job->expects($this->any())
             ->method('getId')
             ->will($this->returnValue($jobId));
@@ -199,7 +201,7 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     public function testMarkAsErrorBuriesBeanstalkJob()
     {
         $jobId = 123;
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
+        $job = $this->getMock(JobInterface::class);
         $job->expects($this->any())
             ->method('getId')
             ->will($this->returnValue($jobId));

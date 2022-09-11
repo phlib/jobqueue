@@ -3,12 +3,13 @@
 namespace Phlib\JobQueue\Tests;
 
 use Phlib\JobQueue\Job;
+use Phlib\JobQueue\JobInterface;
 
 class JobTest extends \PHPUnit_Framework_TestCase
 {
     public function testInstanceOfJobInterface()
     {
-        $this->assertInstanceOf('\Phlib\JobQueue\JobInterface', new Job('queue', 'body'));
+        $this->assertInstanceOf(JobInterface::class, new Job('queue', 'body'));
     }
 
     public function testEachProperty()
