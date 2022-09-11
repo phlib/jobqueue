@@ -8,9 +8,9 @@ namespace Phlib\JobQueue;
  */
 class Job implements JobInterface
 {
-    const DEFAULT_DELAY    = 0;
-    const DEFAULT_PRIORITY = 1024;
-    const DEFAULT_TTR      = 60;
+    public const DEFAULT_DELAY    = 0;
+    public const DEFAULT_PRIORITY = 1024;
+    public const DEFAULT_TTR      = 60;
 
     /**
      * @var string|null
