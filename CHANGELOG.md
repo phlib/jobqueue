@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - **BC break**: Wrap exceptions from SQS in package exception classes.
   If an implementation was catching `SqsException` it should now catch a
   `Phlib\JobQueue\Exception` class instead.
+### Removed
+- **BC break**: Removed support for PHP versions <= v7.1 as they are no longer
+  [actively supported](https://php.net/supported-versions.php) by the PHP project
 
 ## [1.1.1] - 2018-11-15
 ### Fixed
