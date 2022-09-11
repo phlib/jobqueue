@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Changed
 - Improve worker command handling exceptions from job queue library.
+- Worker command error log context keys changed to use `camelCase`.
 - **BC break**: Wrap exceptions from SQS in package exception classes.
   If an implementation was catching `SqsException` it should now catch a
   `Phlib\JobQueue\Exception` class instead.
