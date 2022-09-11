@@ -7,6 +7,7 @@ require __DIR__ . '/WorkerCommandMock.php';
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -14,17 +15,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 class WorkerCommandTest extends TestCase
 {
     /**
-     * @var JobQueueInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var JobQueueInterface|MockObject
      */
     protected $jobQueue;
 
     /**
-     * @var InputInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var InputInterface|MockObject
      */
     protected $input;
 
     /**
-     * @var OutputInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var OutputInterface|MockObject
      */
     protected $output;
 
@@ -55,25 +56,23 @@ class WorkerCommandTest extends TestCase
         static::assertEquals(0, $code);
     }
 
-    /**
-     * @expectedException \Phlib\JobQueue\Exception\InvalidArgumentException
-     */
     public function testLibraryExceptionOnRetrieve(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->jobQueue->expects(static::once())
             ->method('retrieve')
             ->willThrowException(new InvalidArgumentException());
 
-        /** @var WorkerCommand|\PHPUnit_Framework_MockObject_MockObject $command */
+        /** @var WorkerCommand|MockObject $command */
         $command = new WorkerCommandMock($this->jobQueue);
         $command->run($this->input, $this->output);
     }
 
-    /**
-     * @expectedException \Phlib\JobQueue\Exception\InvalidArgumentException
-     */
     public function testLibraryExceptionInMainLoop(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $job = $this->getMockForAbstractClass(JobInterface::class);
         $this->jobQueue->expects(static::at(0))
             ->method('retrieve')
@@ -85,7 +84,7 @@ class WorkerCommandTest extends TestCase
             ->method('markAsComplete')
             ->willThrowException(new InvalidArgumentException());
 
-        /** @var WorkerCommand|\PHPUnit_Framework_MockObject_MockObject $command */
+        /** @var WorkerCommand|MockObject $command */
         $command = new WorkerCommandMock($this->jobQueue);
         $command->run($this->input, $this->output);
     }

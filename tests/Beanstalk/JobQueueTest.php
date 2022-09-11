@@ -5,21 +5,24 @@ namespace Phlib\JobQueue\Tests\Beanstalk;
 use Phlib\Beanstalk\Connection\ConnectionInterface;
 use Phlib\JobQueue\Beanstalk\JobFactory;
 use Phlib\JobQueue\Beanstalk\JobQueue;
+use Phlib\JobQueue\Exception\InvalidArgumentException;
+use Phlib\JobQueue\Exception\JobRuntimeException;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class JobQueueTest extends TestCase
 {
     /**
-     * @var ConnectionInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var ConnectionInterface|MockObject
      */
     protected $beanstalk;
 
     /**
-     * @var SchedulerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var SchedulerInterface|MockObject
      */
     protected $scheduler;
 
@@ -112,22 +115,20 @@ class JobQueueTest extends TestCase
         static::assertFalse($this->jobQueue->retrieve('testQueue'));
     }
 
-    /**
-     * @expectedException \Phlib\JobQueue\Exception\InvalidArgumentException
-     */
     public function testRetrieveWithBadlyFormedBeanstalkData(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->beanstalk->expects(static::once())
             ->method('reserve')
             ->willReturn([]);
         $this->jobQueue->retrieve('testQueue');
     }
 
-    /**
-     * @expectedException \Phlib\JobQueue\Exception\JobRuntimeException
-     */
     public function testRetrieveWithBadlyFormedJobBody(): void
     {
+        $this->expectException(JobRuntimeException::class);
+
         $this->beanstalk->expects(static::once())
             ->method('reserve')
             ->willReturn([

@@ -7,6 +7,7 @@ use Aws\Sqs\SqsClient;
 use Phlib\JobQueue\AwsSqs\JobQueue;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
@@ -113,7 +114,7 @@ class JobQueueTest extends TestCase
         $jobQueue->markAsError($job);
     }
 
-    private function mockAwsResult(array $valueMap): \PHPUnit_Framework_MockObject_MockObject
+    private function mockAwsResult(array $valueMap): MockObject
     {
         $result = $this->createMock(Result::class);
         $result->method('get')->will($this->returnValueMap($valueMap));

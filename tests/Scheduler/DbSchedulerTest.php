@@ -6,17 +6,18 @@ use Phlib\Db\Adapter;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\Scheduler\DbScheduler;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class DbSchedulerTest extends TestCase
 {
     /**
-     * @var \Phlib\Db\Adapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var Adapter|MockObject
      */
     protected $adapter;
 
     /**
-     * @var \Phlib\Db\Adapter\QuoteHandler|\PHPUnit_Framework_MockObject_MockObject
+     * @var Adapter\QuoteHandler|MockObject
      */
     protected $quote;
 
