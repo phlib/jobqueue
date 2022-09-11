@@ -51,11 +51,10 @@ class JobQueue implements JobQueueInterface
     {
         if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
             return $this->scheduler->store($job);
-        } else {
-            return $this->beanstalk
-                ->useTube($job->getQueue())
-                ->put(JobFactory::serializeBody($job), $job->getPriority(), $job->getDelay(), $job->getTtr());
         }
+        return $this->beanstalk
+            ->useTube($job->getQueue())
+            ->put(JobFactory::serializeBody($job), $job->getPriority(), $job->getDelay(), $job->getTtr());
     }
 
     /**
@@ -72,9 +71,13 @@ class JobQueue implements JobQueueInterface
      */
     public function setRetrieveTimeout($value)
     {
-        $options = ['options' => ['min_range' => 0]];
+        $options = [
+            'options' => [
+                'min_range' => 0,
+            ],
+        ];
         if ($value !== null && filter_var($value, FILTER_VALIDATE_INT, $options) === false) {
-            throw new InvalidArgumentException("Specified retrieve timeout value is not valid.");
+            throw new InvalidArgumentException('Specified retrieve timeout value is not valid.');
         }
         $this->retrieveTimeout = $value;
         return $this;
@@ -113,11 +116,10 @@ class JobQueue implements JobQueueInterface
                 $this->beanstalk->delete($job->getId());
             }
             return $this->scheduler->store($job);
-        } else {
-            return $this->beanstalk
-                ->useTube($job->getQueue())
-                ->release($job->getId(), $job->getPriority(), $job->getDelay());
         }
+        return $this->beanstalk
+            ->useTube($job->getQueue())
+            ->release($job->getId(), $job->getPriority(), $job->getDelay());
     }
 
     /**

@@ -2,10 +2,10 @@
 
 namespace Phlib\JobQueue\Console;
 
-use Phlib\JobQueue\Scheduler\SchedulerInterface;
-use Phlib\JobQueue\JobQueueInterface;
-use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\ConsoleProcess\Command\DaemonCommand;
+use Phlib\JobQueue\Exception\InvalidArgumentException;
+use Phlib\JobQueue\JobQueueInterface;
+use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -37,7 +37,7 @@ class MonitorCommand extends DaemonCommand
             throw new InvalidArgumentException('Expected dependencies could not be determined.');
         }
 
-        $this->jobQueue  = $dependencies->getJobQueue();
+        $this->jobQueue = $dependencies->getJobQueue();
         $this->scheduler = $dependencies->getScheduler();
     }
 

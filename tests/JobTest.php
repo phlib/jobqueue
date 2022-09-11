@@ -15,22 +15,22 @@ class JobTest extends \PHPUnit_Framework_TestCase
     public function testEachProperty()
     {
         $data = [
-            'queue'    => 'testQueue',
-            'body'     => 'Job Body',
-            'id'       => 'abc123',
-            'delay'    => 10,
+            'queue' => 'testQueue',
+            'body' => 'Job Body',
+            'id' => 'abc123',
+            'delay' => 10,
             'priority' => 5,
-            'ttr'      => 60,
+            'ttr' => 60,
         ];
         $job = new Job($data['queue'], $data['body'], $data['id'], $data['delay'], $data['priority'], $data['ttr']);
 
         $actual = [
-            'queue'    => $job->getQueue(),
-            'body'     => $job->getBody(),
-            'id'       => $job->getId(),
-            'delay'    => $job->getDelay(),
+            'queue' => $job->getQueue(),
+            'body' => $job->getBody(),
+            'id' => $job->getId(),
+            'delay' => $job->getDelay(),
             'priority' => $job->getPriority(),
-            'ttr'      => $job->getTtr(),
+            'ttr' => $job->getTtr(),
         ];
         static::assertSame($data, $actual);
     }

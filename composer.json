@@ -26,6 +26,7 @@
         "aws/aws-sdk-php": "^3.61"
     },
     "require-dev": {
+        "symplify/easy-coding-standard": "^11",
         "phpunit/phpunit": "~4.4"
     },
     "autoload": {
@@ -38,5 +39,9 @@
            "Phlib\\JobQueue\\Tests\\": "tests/"
        }
     },
-    "bin": ["bin/jobqueue"]
+    "bin": ["bin/jobqueue"],
+    "scripts": {
+        "cs-check": "vendor/bin/ecs",
+        "cs-fix": "vendor/bin/ecs --fix"
+    }
 }

@@ -46,14 +46,14 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldBeScheduled()
     {
-        $maxDelay  = 300;
+        $maxDelay = 300;
         $scheduler = new DbScheduler($this->adapter, $maxDelay);
         static::assertTrue($scheduler->shouldBeScheduled($maxDelay + 1));
     }
 
     public function testShouldNotBeScheduled()
     {
-        $maxDelay  = 300;
+        $maxDelay = 300;
         $scheduler = new DbScheduler($this->adapter, $maxDelay);
         static::assertFalse($scheduler->shouldBeScheduled(60));
     }
@@ -77,7 +77,6 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
         static::assertTrue($scheduler->store($job));
     }
 
-
     public function testRetrieveWithNoResults()
     {
         $stmt = $this->getMock(\PDOStatement::class);
@@ -99,7 +98,7 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
             'data' => serialize('someData'),
             'scheduled_ts' => time(),
             'priority' => 1024,
-            'ttr' => 60
+            'ttr' => 60,
         ];
         $stmt = $this->getMock(\PDOStatement::class);
         $stmt->expects(static::any())

@@ -9,16 +9,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class WorkerCommandMock extends WorkerCommand
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $queue = 'mockQueue';
 
-    /** @var JobQueueInterface */
+    /**
+     * @var JobQueueInterface
+     */
     protected $jobQueue;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     protected $runOnce;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     protected $exitOnException = true;
 
     public function __construct(JobQueueInterface $jobQueue, $runOnce = true)

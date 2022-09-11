@@ -2,11 +2,11 @@
 
 namespace Phlib\JobQueue\Beanstalk;
 
+use Phlib\Beanstalk\Connection;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Exception\JobRuntimeException;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
-use Phlib\Beanstalk\Connection;
 
 /**
  * Class JobFactory
@@ -28,7 +28,11 @@ class JobFactory
 
         $specification = @unserialize($data['body']);
         if (!is_array($specification)) {
-            $job = static::createFromSpecification(['queue' => false, 'id' => $data['id'], 'body' => 'false']);
+            $job = static::createFromSpecification([
+                'queue' => false,
+                'id' => $data['id'],
+                'body' => 'false',
+            ]);
             throw new JobRuntimeException($job, 'Failed to extract job data.');
         }
 
@@ -54,9 +58,9 @@ class JobFactory
 
         // merge default values if any are missing
         $data = $data + [
-            'delay'    => Connection::DEFAULT_DELAY,
+            'delay' => Connection::DEFAULT_DELAY,
             'priority' => Connection::DEFAULT_PRIORITY,
-            'ttr'      => Connection::DEFAULT_TTR
+            'ttr' => Connection::DEFAULT_TTR,
         ];
 
         return new Job($data['queue'], $data['body'], $id, $data['delay'], $data['priority'], $data['ttr']);
@@ -69,11 +73,11 @@ class JobFactory
     public static function serializeBody(JobInterface $job)
     {
         return serialize([
-            'queue'    => $job->getQueue(),
-            'body'     => $job->getBody(),
-            'delay'    => $job->getDelay(),
+            'queue' => $job->getQueue(),
+            'body' => $job->getBody(),
+            'delay' => $job->getDelay(),
             'priority' => $job->getPriority(),
-            'ttr'      => $job->getTtr()
+            'ttr' => $job->getTtr(),
         ]);
     }
 }

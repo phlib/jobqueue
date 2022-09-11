@@ -12,21 +12,27 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class WorkerCommandTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var JobQueueInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var JobQueueInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
     protected $jobQueue;
 
-    /** @var InputInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var InputInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
     protected $input;
 
-    /** @var OutputInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var OutputInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
     protected $output;
 
     protected function setUp()
     {
         parent::setUp();
         $this->jobQueue = $this->getMockForAbstractClass(JobQueueInterface::class);
-        $this->input    = $this->getMockForAbstractClass(InputInterface::class);
-        $this->output   = $this->getMockForAbstractClass(OutputInterface::class);
+        $this->input = $this->getMockForAbstractClass(InputInterface::class);
+        $this->output = $this->getMockForAbstractClass(OutputInterface::class);
 
         $this->input->expects(static::any())->method('getArgument')->willReturn('start');
     }

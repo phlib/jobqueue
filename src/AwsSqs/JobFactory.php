@@ -16,11 +16,11 @@ class JobFactory
     public static function serializeBody(JobInterface $job)
     {
         return json_encode([
-            'queue'    => $job->getQueue(),
-            'body'     => $job->getBody(),
-            'delay'    => $job->getDelay(),
+            'queue' => $job->getQueue(),
+            'body' => $job->getBody(),
+            'delay' => $job->getDelay(),
             'priority' => $job->getPriority(),
-            'ttr'      => $job->getTtr()
+            'ttr' => $job->getTtr(),
         ]);
     }
 
@@ -31,7 +31,11 @@ class JobFactory
         }
         $specification = json_decode($data['Body'], true);
         if (!is_array($specification)) {
-            $job = static::createFromSpecification(['queue' => false, 'id' => $data['ReceiptHandle'], 'body' => 'false']);
+            $job = static::createFromSpecification([
+                'queue' => false,
+                'id' => $data['ReceiptHandle'],
+                'body' => 'false',
+            ]);
             throw new JobRuntimeException($job, 'Failed to extract job data.');
         }
 
@@ -57,9 +61,9 @@ class JobFactory
 
         // merge default values if any are missing
         $data += [
-            'delay'    => 0,
+            'delay' => 0,
             'priority' => 1024,
-            'ttr'      => 60
+            'ttr' => 60,
         ];
 
         return new Job($data['queue'], $data['body'], $id, $data['delay'], $data['priority'], $data['ttr']);

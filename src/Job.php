@@ -8,9 +8,11 @@ namespace Phlib\JobQueue;
  */
 class Job implements JobInterface
 {
-    public const DEFAULT_DELAY    = 0;
+    public const DEFAULT_DELAY = 0;
+
     public const DEFAULT_PRIORITY = 1024;
-    public const DEFAULT_TTR      = 60;
+
+    public const DEFAULT_TTR = 60;
 
     /**
      * @var string|null
@@ -60,8 +62,8 @@ class Job implements JobInterface
         $ttr = self::DEFAULT_TTR
     ) {
         $this->queue = $queue;
-        $this->body  = $body;
-        $this->id    = $id;
+        $this->body = $body;
+        $this->id = $id;
         $this->delay = (int)$delay;
         $this->setPriority($priority);
         $this->setTtr($ttr);

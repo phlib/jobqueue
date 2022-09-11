@@ -1,4 +1,5 @@
 <?php
+
 namespace Phlib\JobQueue\Tests\AwsSqs;
 
 use Aws\Result;
@@ -19,7 +20,9 @@ class JobQueueTest extends TestCase
         $jobQueue = new JobQueue($sqsClient, $scheduler, $queuePrefix);
 
         $queue = 'mockQueue';
-        $data = ['userId' => 123];
+        $data = [
+            'userId' => 123,
+        ];
         $id = 456;
         $delay = 75;
         $priority = 256;
@@ -45,7 +48,9 @@ class JobQueueTest extends TestCase
         $queueUrl = 'mockQueueUrl';
 
         // We expect to fetch the URL for the queue with the prefix
-        $sqsClient->getQueueUrl(['QueueName' => $queuePrefix . $queue])
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
             ->shouldBeCalledOnce()
             ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
 
@@ -68,14 +73,17 @@ class JobQueueTest extends TestCase
         $deadletterQueueUrl = 'mockDeadletterQueueUrl';
         $jobId = 123;
 
-
         // We expect to fetch the URL for the queue with the prefix
-        $sqsClient->getQueueUrl(['QueueName' => $queuePrefix . $queue])
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
             ->shouldBeCalledOnce()
             ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
 
         // We expect to fetch the URL for the deadletter queue
-        $sqsClient->getQueueUrl(['QueueName' => $deadLetterQueue])
+        $sqsClient->getQueueUrl([
+            'QueueName' => $deadLetterQueue,
+        ])
             ->shouldBeCalledOnce()
             ->willReturn($this->mockAwsResult([['QueueUrl', $deadletterQueueUrl]]));
 
@@ -83,13 +91,18 @@ class JobQueueTest extends TestCase
         $sqsClient->getQueueAttributes(Argument::withEntry('QueueUrl', $queueUrl))
             ->shouldBeCalledOnce()
             ->willReturn(
-                $this->mockAwsResult([
-                    ['Attributes.RedrivePolicy', json_encode(['deadLetterTargetArn' => "arn:{$deadLetterQueue}"])]
-                ])
+                $this->mockAwsResult([[
+                    'Attributes.RedrivePolicy', json_encode([
+                        'deadLetterTargetArn' => "arn:{$deadLetterQueue}",
+                    ]),
+                ]])
             );
 
         // We expect to remove the job from the main queue
-        $sqsClient->deleteMessage(['QueueUrl' => $queueUrl, 'ReceiptHandle' => $jobId])
+        $sqsClient->deleteMessage([
+            'QueueUrl' => $queueUrl,
+            'ReceiptHandle' => $jobId,
+        ])
             ->shouldBeCalledOnce();
 
         // We expect to push a job to the deadletter queue

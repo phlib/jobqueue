@@ -2,14 +2,13 @@
 
 namespace Phlib\JobQueue\Tests\Beanstalk;
 
+use Phlib\Beanstalk\Connection\ConnectionInterface;
 use Phlib\JobQueue\Beanstalk\JobFactory;
 use Phlib\JobQueue\Beanstalk\JobQueue;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
-use Phlib\Beanstalk\Connection\ConnectionInterface;
-
 
 class JobQueueTest extends \PHPUnit_Framework_TestCase
 {
@@ -33,12 +32,12 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
         $this->beanstalk = $this->getMock(ConnectionInterface::class);
         $this->scheduler = $this->getMock(SchedulerInterface::class);
-        $this->jobQueue  = new JobQueue($this->beanstalk, $this->scheduler);
+        $this->jobQueue = new JobQueue($this->beanstalk, $this->scheduler);
     }
 
     public function tearDown()
     {
-        $this->jobQueue  = null;
+        $this->jobQueue = null;
         $this->scheduler = null;
         $this->beanstalk = null;
         parent::tearDown();
@@ -69,7 +68,7 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     public function testPutForProlongedJobCallsScheduler()
     {
         $jobId = 123;
-        $job   = $this->getMock(JobInterface::class);
+        $job = $this->getMock(JobInterface::class);
 
         $this->scheduler->expects(static::any())
             ->method('shouldBeScheduled')
@@ -85,10 +84,16 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     public function testRetrieveSuccessfully()
     {
         $jobId = 123;
-        $body  = ['queue' => 'TestQueue', 'body' => 'TestBody'];
+        $body = [
+            'queue' => 'TestQueue',
+            'body' => 'TestBody',
+        ];
         $this->beanstalk->expects(static::any())
             ->method('reserve')
-            ->will(static::returnValue(['id' => $jobId, 'body' => serialize($body)]));
+            ->will(static::returnValue([
+                'id' => $jobId,
+                'body' => serialize($body),
+            ]));
         static::assertEquals($jobId, $this->jobQueue->retrieve('testQueue')->getId());
     }
 
@@ -118,7 +123,14 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     {
         $this->beanstalk->expects(static::any())
             ->method('reserve')
+<<<<<<< HEAD
             ->will(static::returnValue(['id' => 234, 'body' => serialize('SomeStuffHere')]));
+=======
+            ->will($this->returnValue([
+                'id' => 234,
+                'body' => serialize('SomeStuffHere'),
+            ]));
+>>>>>>> 56dfb1d (Add EasyCodingStandard)
         $this->jobQueue->retrieve('testQueue');
     }
 
@@ -131,7 +143,14 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
         $package = JobFactory::serializeBody(new Job('TestQueue', $jobData));
         $this->beanstalk->expects(static::any())
             ->method('reserve')
+<<<<<<< HEAD
             ->will(static::returnValue(['id' => 234, 'body' => $package]));
+=======
+            ->will($this->returnValue([
+                'id' => 234,
+                'body' => $package,
+            ]));
+>>>>>>> 56dfb1d (Add EasyCodingStandard)
         $job = $this->jobQueue->retrieve('TestQueue');
         static::assertEquals($jobData, $job->getBody());
     }
@@ -139,14 +158,17 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
     public function jobDataMaintainsExpectedTypeDataProvider()
     {
         return [
-            [['foo' => 'bar', 'bar' => 'baz']],
+            [[
+                'foo' => 'bar',
+                'bar' => 'baz',
+            ]],
             ['SomeStringData'],
             [123],
             [123.34],
             // [null], // <-- null not accepted
             [[]],
             [false],
-            [true]
+            [true],
         ];
     }
 
