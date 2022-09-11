@@ -4,8 +4,9 @@ namespace Phlib\JobQueue\Tests;
 
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
+use PHPUnit\Framework\TestCase;
 
-class JobTest extends \PHPUnit_Framework_TestCase
+class JobTest extends TestCase
 {
     public function testInstanceOfJobInterface()
     {

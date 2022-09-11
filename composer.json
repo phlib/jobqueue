@@ -27,7 +27,7 @@
     },
     "require-dev": {
         "symplify/easy-coding-standard": "^11",
-        "phpunit/phpunit": "~4.4"
+        "phpunit/phpunit": "^5"
     },
     "autoload": {
         "psr-4": {

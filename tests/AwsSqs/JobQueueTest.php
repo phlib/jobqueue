@@ -15,8 +15,8 @@ class JobQueueTest extends TestCase
     public function testCreateJob()
     {
         $queuePrefix = 'prefix-';
-        $sqsClient = $this->getMockBuilder(SqsClient::class)->disableOriginalConstructor()->getMock();
-        $scheduler = $this->getMock(SchedulerInterface::class);
+        $sqsClient = $this->createMock(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
         $jobQueue = new JobQueue($sqsClient, $scheduler, $queuePrefix);
 
         $queue = 'mockQueue';
@@ -41,7 +41,7 @@ class JobQueueTest extends TestCase
     public function testRetrieve()
     {
         $sqsClient = $this->prophesize(SqsClient::class);
-        $scheduler = $this->getMock(SchedulerInterface::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
 
         $queuePrefix = 'prefix-';
         $queue = 'mockQueue';
@@ -64,7 +64,7 @@ class JobQueueTest extends TestCase
     public function testMarkAsErrorWithPrefix()
     {
         $sqsClient = $this->prophesize(SqsClient::class);
-        $scheduler = $this->getMock(SchedulerInterface::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
 
         $queuePrefix = 'prefix-';
         $queue = 'mockQueue';
@@ -115,7 +115,7 @@ class JobQueueTest extends TestCase
 
     private function mockAwsResult(array $valueMap)
     {
-        $result = $this->getMock(Result::class);
+        $result = $this->createMock(Result::class);
         $result->method('get')->will($this->returnValueMap($valueMap));
         $result->method('search')->will($this->returnValueMap($valueMap));
         return $result;
