@@ -30,13 +30,11 @@ interface JobInterface
     public function getDatetimeDelay();
 
     /**
-     * @param int $value
      * @return $this
      */
-    public function setDelay($value);
+    public function setDelay(int $value);
 
     /**
-     * @param \DateTimeInterface $value
      * @return $this
      */
     public function setDatetimeDelay(\DateTimeInterface $value);
@@ -47,10 +45,9 @@ interface JobInterface
     public function getTtr();
 
     /**
-     * @param int $value
      * @return $this
      */
-    public function setTtr($value);
+    public function setTtr(int $value);
 
     /**
      * @return int
@@ -58,8 +55,7 @@ interface JobInterface
     public function getPriority();
 
     /**
-     * @param int $value
      * @return $this
      */
-    public function setPriority($value);
+    public function setPriority(int $value);
 }

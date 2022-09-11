@@ -4,6 +4,7 @@ namespace Phlib\JobQueue\Console;
 
 use Phlib\ConsoleProcess\Command\DaemonCommand;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
+use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,7 +29,7 @@ class MonitorCommand extends DaemonCommand
      */
     protected $logFile;
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $dependencies = $this->getHelper('configuration')
             ->fetch();
@@ -41,7 +42,7 @@ class MonitorCommand extends DaemonCommand
         $this->scheduler = $dependencies->getScheduler();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('monitor')
             ->setDescription('Monitor the schedule for pending jobs.')
@@ -49,10 +50,7 @@ class MonitorCommand extends DaemonCommand
         ;
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $logFile = $input->getOption('log');
         if (!empty($logFile)) {
@@ -66,7 +64,7 @@ class MonitorCommand extends DaemonCommand
         }
     }
 
-    protected function createJob(array $schedulerJob)
+    protected function createJob(array $schedulerJob): JobInterface
     {
         return $this->jobQueue->createJob(
             $schedulerJob['queue'],
@@ -78,10 +76,7 @@ class MonitorCommand extends DaemonCommand
         );
     }
 
-    /**
-     * @return OutputInterface
-     */
-    protected function createChildOutput()
+    protected function createChildOutput(): OutputInterface
     {
         if (empty($this->logFile)) {
             return parent::createChildOutput();

@@ -12,7 +12,7 @@ use Prophecy\Argument;
 
 class JobQueueTest extends TestCase
 {
-    public function testCreateJob()
+    public function testCreateJob(): void
     {
         $queuePrefix = 'prefix-';
         $sqsClient = $this->createMock(SqsClient::class);
@@ -38,7 +38,7 @@ class JobQueueTest extends TestCase
         $this->assertEquals($ttr, $job->getTtr());
     }
 
-    public function testRetrieve()
+    public function testRetrieve(): void
     {
         $sqsClient = $this->prophesize(SqsClient::class);
         $scheduler = $this->createMock(SchedulerInterface::class);
@@ -61,7 +61,7 @@ class JobQueueTest extends TestCase
         $jobQueue->retrieve($queue);
     }
 
-    public function testMarkAsErrorWithPrefix()
+    public function testMarkAsErrorWithPrefix(): void
     {
         $sqsClient = $this->prophesize(SqsClient::class);
         $scheduler = $this->createMock(SchedulerInterface::class);
@@ -113,7 +113,7 @@ class JobQueueTest extends TestCase
         $jobQueue->markAsError($job);
     }
 
-    private function mockAwsResult(array $valueMap)
+    private function mockAwsResult(array $valueMap): \PHPUnit_Framework_MockObject_MockObject
     {
         $result = $this->createMock(Result::class);
         $result->method('get')->will($this->returnValueMap($valueMap));

@@ -20,7 +20,7 @@ class DbSchedulerTest extends TestCase
      */
     protected $quote;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->adapter = $this->createMock(Adapter::class);
@@ -30,33 +30,33 @@ class DbSchedulerTest extends TestCase
             ->willReturn($this->quote);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->quote = null;
         $this->adapter = null;
         parent::tearDown();
     }
 
-    public function testImplementsSchedulerInterface()
+    public function testImplementsSchedulerInterface(): void
     {
         static::assertInstanceOf(SchedulerInterface::class, new DbScheduler($this->adapter));
     }
 
-    public function testShouldBeScheduled()
+    public function testShouldBeScheduled(): void
     {
         $maxDelay = 300;
         $scheduler = new DbScheduler($this->adapter, $maxDelay);
         static::assertTrue($scheduler->shouldBeScheduled($maxDelay + 1));
     }
 
-    public function testShouldNotBeScheduled()
+    public function testShouldNotBeScheduled(): void
     {
         $maxDelay = 300;
         $scheduler = new DbScheduler($this->adapter, $maxDelay);
         static::assertFalse($scheduler->shouldBeScheduled(60));
     }
 
-    public function testStoringJob()
+    public function testStoringJob(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects(static::once())
@@ -75,7 +75,7 @@ class DbSchedulerTest extends TestCase
         static::assertTrue($scheduler->store($job));
     }
 
-    public function testRetrieveWithNoResults()
+    public function testRetrieveWithNoResults(): void
     {
         $stmt = $this->createMock(\PDOStatement::class);
         $stmt->expects(static::once())
@@ -88,7 +88,7 @@ class DbSchedulerTest extends TestCase
         static::assertFalse($scheduler->retrieve());
     }
 
-    public function testRetrieveCalculatesDelay()
+    public function testRetrieveCalculatesDelay(): void
     {
         $rowData = [
             'id' => 1,
@@ -114,7 +114,7 @@ class DbSchedulerTest extends TestCase
         static::assertEquals(0, $jobData['delay']);
     }
 
-    public function testRemove()
+    public function testRemove(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects(static::once())

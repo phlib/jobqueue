@@ -27,7 +27,6 @@ class DbScheduler implements SchedulerInterface
     private $minimumPickup;
 
     /**
-     * @param Adapter $adapter
      * @param integer $maximumDelay
      * @param integer $minimumPickup
      */
@@ -38,18 +37,12 @@ class DbScheduler implements SchedulerInterface
         $this->minimumPickup = $minimumPickup;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function shouldBeScheduled($delay)
+    public function shouldBeScheduled($delay): bool
     {
         return $delay > $this->maximumDelay;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function store(JobInterface $job)
+    public function store(JobInterface $job): bool
     {
         $dbTimestampFormat = 'Y-m-d H:i:s';
         return (bool)$this->insert([
@@ -63,7 +56,7 @@ class DbScheduler implements SchedulerInterface
     }
 
     /**
-     * @inheritdoc
+     * @return array|false
      */
     public function retrieve()
     {
@@ -104,9 +97,9 @@ class DbScheduler implements SchedulerInterface
     }
 
     /**
-     * @inheritdoc
+     * @param int|string $jobId
      */
-    public function remove($jobId)
+    public function remove($jobId): bool
     {
         $table = $this->adapter->quote()->identifier('scheduled_queue');
         $sql = "DELETE FROM {$table} WHERE id = ?";
@@ -116,11 +109,7 @@ class DbScheduler implements SchedulerInterface
             ->rowCount();
     }
 
-    /**
-     * @param array $data
-     * @return int
-     */
-    protected function insert(array $data)
+    protected function insert(array $data): int
     {
         $table = $this->adapter->quote()->identifier('scheduled_queue');
         $fields = implode(', ', array_keys($data));

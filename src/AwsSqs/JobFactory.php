@@ -10,7 +10,6 @@ use Phlib\JobQueue\JobInterface;
 class JobFactory
 {
     /**
-     * @param JobInterface $job
      * @return string
      */
     public static function serializeBody(JobInterface $job)
@@ -24,7 +23,7 @@ class JobFactory
         ]);
     }
 
-    public static function createFromRaw(array $data)
+    public static function createFromRaw(array $data): Job
     {
         if (!isset($data['ReceiptHandle'], $data['Body'])) {
             throw new InvalidArgumentException('Specified raw data is missing required elements.');
@@ -44,11 +43,9 @@ class JobFactory
     }
 
     /**
-     * @param array $data
-     * @return Job
      * @throws InvalidArgumentException
      */
-    public static function createFromSpecification(array $data)
+    public static function createFromSpecification(array $data): Job
     {
         if (!isset($data['body'], $data['queue'])) {
             throw new \InvalidArgumentException('Missing required job data.');

@@ -22,14 +22,10 @@ class JobQueue implements JobQueueInterface
     protected $scheduler;
 
     /**
-     * @var int Seconds
+     * @var int|null Seconds
      */
     protected $retrieveTimeout = 5;
 
-    /**
-     * @param ConnectionInterface $beanstalk
-     * @param SchedulerInterface $scheduler
-     */
     public function __construct(ConnectionInterface $beanstalk, SchedulerInterface $scheduler)
     {
         $this->beanstalk = $beanstalk;
@@ -37,15 +33,16 @@ class JobQueue implements JobQueueInterface
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $data
+     * @param int|string|null $id
      */
-    public function createJob($queue, $data, $id, $delay, $priority, $ttr)
+    public function createJob(string $queue, $data, $id, int $delay, int $priority, int $ttr): JobInterface
     {
         return new Job($queue, $data, $id, $delay, $priority, $ttr);
     }
 
     /**
-     * @inheritdoc
+     * @return mixed
      */
     public function put(JobInterface $job)
     {
@@ -57,19 +54,12 @@ class JobQueue implements JobQueueInterface
             ->put(JobFactory::serializeBody($job), $job->getPriority(), $job->getDelay(), $job->getTtr());
     }
 
-    /**
-     * @return int|null
-     */
-    public function getRetrieveTimeout()
+    public function getRetrieveTimeout(): ?int
     {
         return $this->retrieveTimeout;
     }
 
-    /**
-     * @param int|null $value
-     * @return $this
-     */
-    public function setRetrieveTimeout($value)
+    public function setRetrieveTimeout(?int $value): self
     {
         $options = [
             'options' => [
@@ -84,9 +74,9 @@ class JobQueue implements JobQueueInterface
     }
 
     /**
-     * @inheritdoc
+     * @return JobInterface|false
      */
-    public function retrieve($queue)
+    public function retrieve(string $queue)
     {
         $this->beanstalk->watch($queue);
         $this->beanstalk->ignore('default');
@@ -98,16 +88,13 @@ class JobQueue implements JobQueueInterface
         return JobFactory::createFromRaw($data);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsComplete(JobInterface $job)
+    public function markAsComplete(JobInterface $job): ConnectionInterface
     {
         return $this->beanstalk->delete($job->getId());
     }
 
     /**
-     * @inheritdoc
+     * @return mixed
      */
     public function markAsIncomplete(JobInterface $job)
     {
@@ -122,10 +109,7 @@ class JobQueue implements JobQueueInterface
             ->release($job->getId(), $job->getPriority(), $job->getDelay());
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsError(JobInterface $job)
+    public function markAsError(JobInterface $job): ConnectionInterface
     {
         return $this->beanstalk->bury($job->getId());
     }

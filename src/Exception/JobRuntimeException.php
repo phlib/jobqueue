@@ -9,35 +9,20 @@ class JobRuntimeException extends RuntimeException
     /**
      * @var JobInterface
      */
-    protected $job = null;
+    protected $job;
 
-    /**
-     * JobRuntimeException constructor.
-     * @param JobInterface $job
-     * @param string $message
-     * @param int $code
-     * @param Exception|null $previous
-     */
-    public function __construct($job, $message, $code = 0, Exception $previous = null)
+    public function __construct(?JobInterface $job, string $message, int $code = 0, \Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
-        if ($job instanceof JobInterface) {
-            $this->job = $job;
-        }
+        $this->job = $job;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasJob()
+    public function hasJob(): bool
     {
         return $this->job !== null;
     }
 
-    /**
-     * @return JobInterface|null
-     */
-    public function getJob()
+    public function getJob(): ?JobInterface
     {
         return $this->job;
     }

@@ -28,7 +28,7 @@ class WorkerCommandTest extends TestCase
      */
     protected $output;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->jobQueue = $this->getMockForAbstractClass(JobQueueInterface::class);
@@ -40,7 +40,7 @@ class WorkerCommandTest extends TestCase
             ->willReturn('start');
     }
 
-    public function testRunCompletes()
+    public function testRunCompletes(): void
     {
         // need to do at least one job to exit the loop of work
         $job = $this->getMockForAbstractClass(JobInterface::class);
@@ -58,7 +58,7 @@ class WorkerCommandTest extends TestCase
     /**
      * @expectedException \Phlib\JobQueue\Exception\InvalidArgumentException
      */
-    public function testLibraryExceptionOnRetrieve()
+    public function testLibraryExceptionOnRetrieve(): void
     {
         $this->jobQueue->expects(static::once())
             ->method('retrieve')
@@ -72,7 +72,7 @@ class WorkerCommandTest extends TestCase
     /**
      * @expectedException \Phlib\JobQueue\Exception\InvalidArgumentException
      */
-    public function testLibraryExceptionInMainLoop()
+    public function testLibraryExceptionInMainLoop(): void
     {
         $job = $this->getMockForAbstractClass(JobInterface::class);
         $this->jobQueue->expects(static::at(0))

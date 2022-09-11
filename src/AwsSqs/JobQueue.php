@@ -46,15 +46,22 @@ class JobQueue implements JobQueueInterface
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $data
+     * @param int|string|null $id
      */
-    public function createJob($queue, $data, $id = null, $delay = Job::DEFAULT_DELAY, $priority = Job::DEFAULT_PRIORITY, $ttr = Job::DEFAULT_TTR)
-    {
+    public function createJob(
+        string $queue,
+        $data,
+        $id = null,
+        $delay = Job::DEFAULT_DELAY,
+        $priority = Job::DEFAULT_PRIORITY,
+        $ttr = Job::DEFAULT_TTR
+    ): JobInterface {
         return new Job($queue, $data, $id, $delay, $priority, $ttr);
     }
 
     /**
-     * @inheritdoc
+     * @return $this|bool
      */
     public function put(JobInterface $job)
     {
@@ -74,10 +81,7 @@ class JobQueue implements JobQueueInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function retrieve($queue)
+    public function retrieve(string $queue): ?JobInterface
     {
         try {
             $result = $this->client->receiveMessage([
@@ -96,10 +100,7 @@ class JobQueue implements JobQueueInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsComplete(JobInterface $job)
+    public function markAsComplete(JobInterface $job): void
     {
         try {
             $this->client->deleteMessage([
@@ -111,20 +112,14 @@ class JobQueue implements JobQueueInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsIncomplete(JobInterface $job)
+    public function markAsIncomplete(JobInterface $job): void
     {
         $this->markAsComplete($job);
         $job->setDelay(0);
         $this->put($job);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsError(JobInterface $job)
+    public function markAsError(JobInterface $job): void
     {
         try {
             $queue = $job->getQueue();

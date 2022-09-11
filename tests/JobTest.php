@@ -8,12 +8,12 @@ use PHPUnit\Framework\TestCase;
 
 class JobTest extends TestCase
 {
-    public function testInstanceOfJobInterface()
+    public function testInstanceOfJobInterface(): void
     {
         static::assertInstanceOf(JobInterface::class, new Job('queue', 'body'));
     }
 
-    public function testEachProperty()
+    public function testEachProperty(): void
     {
         $data = [
             'queue' => 'testQueue',
@@ -36,14 +36,14 @@ class JobTest extends TestCase
         static::assertSame($data, $actual);
     }
 
-    public function testGetDatetimeDelayReturnsCorrectDateTime()
+    public function testGetDatetimeDelayReturnsCorrectDateTime(): void
     {
         $delay = 10;
         $job = new Job('queue', 'body', 'id', $delay);
         static::assertEquals(time() + $delay, $job->getDatetimeDelay()->getTimestamp());
     }
 
-    public function testSetDelay()
+    public function testSetDelay(): void
     {
         $delay = 10;
         $job = new Job('queue', 'body', 'id', 2000);
@@ -51,7 +51,7 @@ class JobTest extends TestCase
         static::assertEquals($delay, $job->getDelay());
     }
 
-    public function testSetTtr()
+    public function testSetTtr(): void
     {
         $ttr = 60;
         $job = new Job('queue', 'body', 'id', 10, 10, 2000);
@@ -59,7 +59,7 @@ class JobTest extends TestCase
         static::assertEquals($ttr, $job->getTtr());
     }
 
-    public function testSetPriority()
+    public function testSetPriority(): void
     {
         $priority = 100;
         $job = new Job('queue', 'body', 'id', 10, 2000);

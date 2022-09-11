@@ -14,13 +14,7 @@ use Phlib\JobQueue\JobInterface;
  */
 class JobFactory
 {
-    /**
-     * @param array $data
-     * @return Job|false
-     * @throws InvalidArgumentException
-     * @throws JobRuntimeException
-     */
-    public static function createFromRaw(array $data)
+    public static function createFromRaw(array $data): Job
     {
         if (!isset($data['id']) || !isset($data['body'])) {
             throw new InvalidArgumentException('Specified raw data is missing required elements.');
@@ -40,12 +34,7 @@ class JobFactory
         return static::createFromSpecification($specification);
     }
 
-    /**
-     * @param array $data
-     * @return Job
-     * @throws InvalidArgumentException
-     */
-    public static function createFromSpecification(array $data)
+    public static function createFromSpecification(array $data): Job
     {
         if (!isset($data['body']) || !isset($data['queue'])) {
             throw new \InvalidArgumentException('Missing required job data.');
@@ -66,11 +55,7 @@ class JobFactory
         return new Job($data['queue'], $data['body'], $id, $data['delay'], $data['priority'], $data['ttr']);
     }
 
-    /**
-     * @param JobInterface $job
-     * @return string
-     */
-    public static function serializeBody(JobInterface $job)
+    public static function serializeBody(JobInterface $job): string
     {
         return serialize([
             'queue' => $job->getQueue(),

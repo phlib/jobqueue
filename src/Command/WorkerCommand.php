@@ -29,10 +29,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
      */
     protected $exitOnException = false;
 
-    /**
-     * @inheritdoc
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         if ($this->queue === null) {
             throw new InvalidArgumentException("Missing require property 'queue' to be set on Worker Command.");
@@ -71,8 +68,6 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
     }
 
     /**
-     * @param JobQueueInterface $jobQueue
-     * @param LoggerInterface $logger
      * @return JobInterface|null
      * @throws \Exception
      */
@@ -97,25 +92,17 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
      * @throws LogicException When this abstract method is not implemented
      * @see setCode()
      */
-    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output)
+    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): void
     {
         throw new LogicException('You must override the work() method in the concrete command class.');
     }
 
-    /**
-     * @return JobQueueInterface
-     * @throws LogicException
-     */
-    protected function getJobQueue()
+    protected function getJobQueue(): JobQueueInterface
     {
         throw new LogicException('You must override the getJobQueue() method in the concrete command class.');
     }
 
-    /**
-     * @param OutputInterface $output An OutputInterface instance
-     * @return \Psr\Log\LoggerInterface|NullLogger
-     */
-    protected function getLogger($output)
+    protected function getLogger(OutputInterface $output): LoggerInterface
     {
         if (!$this->logger) {
             $this->logger = new NullLogger();
@@ -123,7 +110,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         return $this->logger;
     }
 
-    private function logException(LoggerInterface $logger, $message, \Exception $exception, $job = null)
+    private function logException(LoggerInterface $logger, $message, \Exception $exception, $job = null): void
     {
         $context = [
             'qClass' => get_class($this->getJobQueue()),

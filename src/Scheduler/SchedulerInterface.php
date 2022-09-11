@@ -10,17 +10,9 @@ use Phlib\JobQueue\JobInterface;
  */
 interface SchedulerInterface
 {
-    /**
-     * @param integer $delay
-     * @return boolean
-     */
-    public function shouldBeScheduled($delay);
+    public function shouldBeScheduled(int $delay): bool;
 
-    /**
-     * @param JobInterface $job
-     * @return boolean
-     */
-    public function store(JobInterface $job);
+    public function store(JobInterface $job): bool;
 
     /**
      * @return array|false
@@ -29,7 +21,6 @@ interface SchedulerInterface
 
     /**
      * @param int|string $jobId
-     * @return bool
      */
-    public function remove($jobId);
+    public function remove($jobId): bool;
 }
