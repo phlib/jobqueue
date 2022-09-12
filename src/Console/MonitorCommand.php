@@ -50,7 +50,7 @@ class MonitorCommand extends DaemonCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $logFile = $input->getOption('log');
         if (!empty($logFile)) {
@@ -62,6 +62,8 @@ class MonitorCommand extends DaemonCommand
             $this->jobQueue->put($this->createJob($jobData));
             $this->scheduler->remove($jobData['id']);
         }
+
+        return 0;
     }
 
     protected function createJob(array $schedulerJob): JobInterface

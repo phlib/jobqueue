@@ -29,7 +29,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
      */
     protected $exitOnException = false;
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->queue === null) {
             throw new InvalidArgumentException("Missing require property 'queue' to be set on Worker Command.");
@@ -65,6 +65,8 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                 }
             }
         }
+
+        return 0;
     }
 
     /**
