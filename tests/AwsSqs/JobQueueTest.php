@@ -1,8 +1,9 @@
 <?php
-namespace Phlib\JobQueue\AwsSqs;
+namespace Phlib\JobQueue\Tests\AwsSqs;
 
 use Aws\Result;
 use Aws\Sqs\SqsClient;
+use Phlib\JobQueue\AwsSqs\JobQueue;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use PHPUnit\Framework\TestCase;
