@@ -95,16 +95,16 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
     {
         $rowData = [
             'id' => 1,
-            'queue' => 'queue',
+            'tube' => 'queue',
             'data' => serialize('someData'),
-            'delay' => time(),
+            'scheduled_ts' => time(),
             'priority' => 1024,
             'ttr' => 60
         ];
         $stmt = $this->getMock('\PDOStatement');
         $stmt->expects($this->any())
             ->method('rowCount')
-            ->will($this->returnValue(0));
+            ->will($this->returnValue(1));
         $stmt->expects($this->any())
             ->method('fetch')
             ->will($this->returnValue($rowData));
