@@ -11,27 +11,28 @@ interface JobQueueInterface
     public function createJob(string $queue, $data, $id, int $delay, int $priority, int $ttr): JobInterface;
 
     /**
+     * @todo php74 return type self
      * @return $this
      */
     public function put(JobInterface $job);
 
-    /**
-     * @return JobInterface
-     */
-    public function retrieve(string $queue);
+    public function retrieve(string $queue): ?JobInterface;
 
     /**
-     * @return mixed
+     * @todo php74 return type self
+     * @return $this
      */
     public function markAsComplete(JobInterface $job);
 
     /**
-     * @return mixed
+     * @todo php74 return type self
+     * @return $this
      */
     public function markAsIncomplete(JobInterface $job);
 
     /**
-     * @return mixed
+     * @todo php74 return type self
+     * @return $this
      */
     public function markAsError(JobInterface $job);
 }

@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Improve worker command handling exceptions from job queue library.
 - Worker command error log context keys changed to use `camelCase`.
+- **BC break**: Make return types consistent for `JobQueueInterface` methods.
+  - `put()` returns self. A job delayed in the DB used to return `true`,
+    otherwise Beanstalk used to return a Beanstalkd job ID.
+  - `retrieve()` returns `null` when not found. Beanstalk used to return `false`.
+  - `markAsComplete()`, `markAsIncomplete()` and `markAsError()` return self.
+    AWS returned void. Beanstalk sometimes returned the underlying connection.
 - **BC break**: Wrap exceptions from SQS in package exception classes.
   If an implementation was catching `SqsException` it should now catch a
   `Phlib\JobQueue\Exception` class instead.

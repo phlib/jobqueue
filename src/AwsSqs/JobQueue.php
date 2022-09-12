@@ -60,14 +60,12 @@ class JobQueue implements JobQueueInterface
         return new Job($queue, $data, $id, $delay, $priority, $ttr);
     }
 
-    /**
-     * @return $this|bool
-     */
-    public function put(JobInterface $job)
+    public function put(JobInterface $job): self
     {
         try {
             if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
-                return $this->scheduler->store($job);
+                $this->scheduler->store($job);
+                return $this;
             }
 
             $this->client->sendMessage([
@@ -100,7 +98,7 @@ class JobQueue implements JobQueueInterface
         }
     }
 
-    public function markAsComplete(JobInterface $job): void
+    public function markAsComplete(JobInterface $job): self
     {
         try {
             $this->client->deleteMessage([
@@ -110,16 +108,20 @@ class JobQueue implements JobQueueInterface
         } catch (SqsException $exception) {
             throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return $this;
     }
 
-    public function markAsIncomplete(JobInterface $job): void
+    public function markAsIncomplete(JobInterface $job): self
     {
         $this->markAsComplete($job);
         $job->setDelay(0);
         $this->put($job);
+
+        return $this;
     }
 
-    public function markAsError(JobInterface $job): void
+    public function markAsError(JobInterface $job): self
     {
         try {
             $queue = $job->getQueue();
@@ -139,6 +141,8 @@ class JobQueue implements JobQueueInterface
         } catch (SqsException $exception) {
             throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return $this;
     }
 
     private function getQueueUrlWithPrefix($name)

@@ -69,7 +69,7 @@ class JobQueueTest extends TestCase
         $job->method('getDelay')
             ->willReturn(rand(1, 100));
 
-        static::assertEquals($jobId, $this->jobQueue->put($job));
+        $this->jobQueue->put($job);
     }
 
     public function testPutForProlongedJobCallsScheduler(): void
@@ -88,7 +88,7 @@ class JobQueueTest extends TestCase
             ->with($job)
             ->willReturn($jobId);
 
-        static::assertEquals($jobId, $this->jobQueue->put($job));
+        $this->jobQueue->put($job);
     }
 
     public function testRetrieveSuccessfully(): void
@@ -112,7 +112,7 @@ class JobQueueTest extends TestCase
         $this->beanstalk->expects(static::once())
             ->method('reserve')
             ->willReturn(false);
-        static::assertFalse($this->jobQueue->retrieve('testQueue'));
+        static::assertNull($this->jobQueue->retrieve('testQueue'));
     }
 
     public function testRetrieveWithBadlyFormedBeanstalkData(): void
