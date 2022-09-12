@@ -28,18 +28,18 @@ class WorkerCommandTest extends \PHPUnit_Framework_TestCase
         $this->input    = $this->getMockForAbstractClass(InputInterface::class);
         $this->output   = $this->getMockForAbstractClass(OutputInterface::class);
 
-        $this->input->expects($this->any())->method('getArgument')->willReturn('start');
+        $this->input->expects(static::any())->method('getArgument')->willReturn('start');
     }
 
     public function testRunCompletes()
     {
         // need to do at least one job to exit the loop of work
         $job = $this->getMockForAbstractClass(JobInterface::class);
-        $this->jobQueue->expects($this->at(0))->method('retrieve')->willReturn($job);
-        $this->jobQueue->expects($this->at(1))->method('retrieve')->willReturn(null);
+        $this->jobQueue->expects(static::at(0))->method('retrieve')->willReturn($job);
+        $this->jobQueue->expects(static::at(1))->method('retrieve')->willReturn(null);
         $command = new WorkerCommandMock($this->jobQueue);
         $code = $command->run($this->input, $this->output);
-        $this->assertEquals(0, $code);
+        static::assertEquals(0, $code);
     }
 
     /**
@@ -47,7 +47,7 @@ class WorkerCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testLibraryExceptionOnRetrieve()
     {
-        $this->jobQueue->expects($this->any())->method('retrieve')->willThrowException(new InvalidArgumentException());
+        $this->jobQueue->expects(static::any())->method('retrieve')->willThrowException(new InvalidArgumentException());
 
         /** @var WorkerCommand|\PHPUnit_Framework_MockObject_MockObject $command */
         $command = new WorkerCommandMock($this->jobQueue);
@@ -60,9 +60,9 @@ class WorkerCommandTest extends \PHPUnit_Framework_TestCase
     public function testLibraryExceptionInMainLoop()
     {
         $job = $this->getMockForAbstractClass(JobInterface::class);
-        $this->jobQueue->expects($this->at(0))->method('retrieve')->willReturn($job);
-        $this->jobQueue->expects($this->at(1))->method('retrieve')->willReturn(null);
-        $this->jobQueue->expects($this->any())->method('markAsComplete')->willThrowException(new InvalidArgumentException());
+        $this->jobQueue->expects(static::at(0))->method('retrieve')->willReturn($job);
+        $this->jobQueue->expects(static::at(1))->method('retrieve')->willReturn(null);
+        $this->jobQueue->expects(static::any())->method('markAsComplete')->willThrowException(new InvalidArgumentException());
 
         /** @var WorkerCommand|\PHPUnit_Framework_MockObject_MockObject $command */
         $command = new WorkerCommandMock($this->jobQueue);

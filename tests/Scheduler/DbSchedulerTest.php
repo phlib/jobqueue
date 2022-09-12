@@ -27,7 +27,7 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
         $this->quote = $this->getMockBuilder(Adapter\QuoteHandler::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->adapter->expects($this->any())
+        $this->adapter->expects(static::any())
             ->method('quote')
             ->willReturn($this->quote);
     }
@@ -41,54 +41,54 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
 
     public function testImplementsSchedulerInterface()
     {
-        $this->assertInstanceOf(SchedulerInterface::class, new DbScheduler($this->adapter));
+        static::assertInstanceOf(SchedulerInterface::class, new DbScheduler($this->adapter));
     }
 
     public function testShouldBeScheduled()
     {
         $maxDelay  = 300;
         $scheduler = new DbScheduler($this->adapter, $maxDelay);
-        $this->assertTrue($scheduler->shouldBeScheduled($maxDelay + 1));
+        static::assertTrue($scheduler->shouldBeScheduled($maxDelay + 1));
     }
 
     public function testShouldNotBeScheduled()
     {
         $maxDelay  = 300;
         $scheduler = new DbScheduler($this->adapter, $maxDelay);
-        $this->assertFalse($scheduler->shouldBeScheduled(60));
+        static::assertFalse($scheduler->shouldBeScheduled(60));
     }
 
     public function testStoringJob()
     {
         $pdoStatement = $this->getMock(\PDOStatement::class);
-        $pdoStatement->expects($this->any())
+        $pdoStatement->expects(static::any())
             ->method('rowCount')
-            ->will($this->returnValue(1));
-        $this->adapter->expects($this->any())
+            ->will(static::returnValue(1));
+        $this->adapter->expects(static::any())
             ->method('query')
-            ->will($this->returnValue($pdoStatement));
+            ->will(static::returnValue($pdoStatement));
 
         $job = $this->getMock(JobInterface::class);
-        $job->expects($this->any())
+        $job->expects(static::any())
             ->method('getDatetimeDelay')
-            ->will($this->returnValue(new \DateTime()));
+            ->will(static::returnValue(new \DateTime()));
 
         $scheduler = new DbScheduler($this->adapter);
-        $this->assertTrue($scheduler->store($job));
+        static::assertTrue($scheduler->store($job));
     }
 
 
     public function testRetrieveWithNoResults()
     {
         $stmt = $this->getMock(\PDOStatement::class);
-        $stmt->expects($this->any())
+        $stmt->expects(static::any())
             ->method('rowCount')
-            ->will($this->returnValue(0));
-        $this->adapter->expects($this->any())
+            ->will(static::returnValue(0));
+        $this->adapter->expects(static::any())
             ->method('query')
-            ->will($this->returnValue($stmt));
+            ->will(static::returnValue($stmt));
         $scheduler = new DbScheduler($this->adapter);
-        $this->assertFalse($scheduler->retrieve());
+        static::assertFalse($scheduler->retrieve());
     }
 
     public function testRetrieveCalculatesDelay()
@@ -102,31 +102,31 @@ class DbSchedulerTest extends \PHPUnit_Framework_TestCase
             'ttr' => 60
         ];
         $stmt = $this->getMock(\PDOStatement::class);
-        $stmt->expects($this->any())
+        $stmt->expects(static::any())
             ->method('rowCount')
-            ->will($this->returnValue(1));
-        $stmt->expects($this->any())
+            ->will(static::returnValue(1));
+        $stmt->expects(static::any())
             ->method('fetch')
-            ->will($this->returnValue($rowData));
-        $this->adapter->expects($this->any())
+            ->will(static::returnValue($rowData));
+        $this->adapter->expects(static::any())
             ->method('query')
-            ->will($this->returnValue($stmt));
+            ->will(static::returnValue($stmt));
         $scheduler = new DbScheduler($this->adapter);
 
         $jobData = $scheduler->retrieve();
-        $this->assertEquals(0, $jobData['delay']);
+        static::assertEquals(0, $jobData['delay']);
     }
 
     public function testRemove()
     {
         $pdoStatement = $this->getMock(\PDOStatement::class);
-        $pdoStatement->expects($this->any())
+        $pdoStatement->expects(static::any())
             ->method('rowCount')
-            ->will($this->returnValue(1));
-        $this->adapter->expects($this->any())
+            ->will(static::returnValue(1));
+        $this->adapter->expects(static::any())
             ->method('query')
-            ->will($this->returnValue($pdoStatement));
+            ->will(static::returnValue($pdoStatement));
         $scheduler = new DbScheduler($this->adapter);
-        $this->assertTrue($scheduler->remove(234));
+        static::assertTrue($scheduler->remove(234));
     }
 }
