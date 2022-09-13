@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Type declarations have been added to all method parameters and return types
-  where possible.
+- Type declarations have been added to all properties, method parameters and
+  return types where possible.
 ### Changed
 - Improve worker command handling exceptions from job queue library.
 - Worker command error log context keys changed to use `camelCase`.

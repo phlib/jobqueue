@@ -16,12 +16,12 @@ class DbSchedulerTest extends TestCase
     /**
      * @var Adapter|MockObject
      */
-    protected $adapter;
+    private Adapter $adapter;
 
     /**
      * @var Adapter\QuoteHandler|MockObject
      */
-    protected $quote;
+    private Adapter\QuoteHandler $quote;
 
     public function setUp(): void
     {
@@ -35,8 +35,10 @@ class DbSchedulerTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->quote = null;
-        $this->adapter = null;
+        unset(
+            $this->quote,
+            $this->adapter,
+        );
         parent::tearDown();
     }
 
@@ -72,7 +74,7 @@ class DbSchedulerTest extends TestCase
         $job = $this->createMock(JobInterface::class);
         $job->expects(static::once())
             ->method('getDatetimeDelay')
-            ->willReturn(new \DateTime());
+            ->willReturn(new \DateTimeImmutable());
 
         $scheduler = new DbScheduler($this->adapter);
         static::assertTrue($scheduler->store($job));

@@ -19,17 +19,17 @@ class WorkerCommandTest extends TestCase
     /**
      * @var JobQueueInterface|MockObject
      */
-    protected $jobQueue;
+    private JobQueueInterface $jobQueue;
 
     /**
      * @var InputInterface|MockObject
      */
-    protected $input;
+    private InputInterface $input;
 
     /**
      * @var OutputInterface|MockObject
      */
-    protected $output;
+    private OutputInterface $output;
 
     protected function setUp(): void
     {

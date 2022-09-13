@@ -21,17 +21,14 @@ class JobQueueTest extends TestCase
     /**
      * @var ConnectionInterface|MockObject
      */
-    protected $beanstalk;
+    private ConnectionInterface $beanstalk;
 
     /**
      * @var SchedulerInterface|MockObject
      */
-    protected $scheduler;
+    private SchedulerInterface $scheduler;
 
-    /**
-     * @var JobQueue
-     */
-    protected $jobQueue;
+    private JobQueue $jobQueue;
 
     public function setUp(): void
     {
@@ -43,9 +40,11 @@ class JobQueueTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->jobQueue = null;
-        $this->scheduler = null;
-        $this->beanstalk = null;
+        unset(
+            $this->jobQueue,
+            $this->scheduler,
+            $this->beanstalk,
+        );
         parent::tearDown();
     }
 

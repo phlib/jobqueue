@@ -13,20 +13,11 @@ use Phlib\JobQueue\JobInterface;
  */
 class DbScheduler implements SchedulerInterface
 {
-    /**
-     * @var QuotableAdapterInterface
-     */
-    protected $adapter;
+    protected Adapter $adapter;
 
-    /**
-     * @var integer
-     */
-    protected $maximumDelay;
+    protected int $maximumDelay;
 
-    /**
-     * @var integer
-     */
-    private $minimumPickup;
+    private int $minimumPickup;
 
     /**
      * @param integer $maximumDelay

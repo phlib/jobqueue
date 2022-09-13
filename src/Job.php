@@ -16,30 +16,18 @@ class Job implements JobInterface
 
     public const DEFAULT_TTR = 60;
 
-    /**
-     * @var string
-     */
-    protected $queue;
+    protected string $queue;
 
     /**
      * @var int|string|null
      */
     protected $id;
 
-    /**
-     * @var int
-     */
-    protected $delay;
+    protected int $delay;
 
-    /**
-     * @var int
-     */
-    protected $priority;
+    protected int $priority;
 
-    /**
-     * @var int
-     */
-    protected $ttr;
+    protected int $ttr;
 
     /**
      * @var mixed

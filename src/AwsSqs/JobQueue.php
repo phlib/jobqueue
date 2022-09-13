@@ -15,25 +15,13 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
 class JobQueue implements JobQueueInterface
 {
-    /**
-     * @var SqsClient
-     */
-    private $client;
+    private SqsClient $client;
 
-    /**
-     * @var SchedulerInterface
-     */
-    private $scheduler;
+    private SchedulerInterface $scheduler;
 
-    /**
-     * @var int Seconds
-     */
-    private $retrieveTimeout = 10;
+    private int $retrieveTimeout = 10;
 
-    /**
-     * @var array
-     */
-    private $queues = [];
+    private array $queues = [];
 
     /**
      * @var string

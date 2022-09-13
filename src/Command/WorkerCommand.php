@@ -21,15 +21,9 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $queue;
+    protected string $queue;
 
-    /**
-     * @var bool
-     */
-    protected $exitOnException = false;
+    protected bool $exitOnException = false;
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {

@@ -16,20 +16,11 @@ use Symfony\Component\Console\Output\StreamOutput;
 
 class MonitorCommand extends DaemonCommand
 {
-    /**
-     * @var SchedulerInterface
-     */
-    protected $scheduler;
+    protected SchedulerInterface $scheduler;
 
-    /**
-     * @var JobQueueInterface
-     */
-    protected $jobQueue;
+    protected JobQueueInterface $jobQueue;
 
-    /**
-     * @var string
-     */
-    protected $logFile;
+    protected string $logFile;
 
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
