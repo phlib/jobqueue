@@ -3,8 +3,8 @@
 namespace Phlib\JobQueue\Command;
 
 use Phlib\ConsoleProcess\Command\DaemonCommand;
-use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Exception\Exception as LibraryException;
+use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -29,30 +29,27 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
      */
     protected $exitOnException = false;
 
-    /**
-     * @inheritdoc
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->queue === null) {
             throw new InvalidArgumentException("Missing require property 'queue' to be set on Worker Command.");
         }
 
         $jobQueue = $this->getJobQueue();
-        $logger   = $this->getLogger($output);
+        $logger = $this->getLogger($output);
 
         while ($this->continue && ($job = $this->retrieve($jobQueue, $logger)) instanceof JobInterface) {
             try {
                 $logger->info("Retrieved job {$job->getId()} for {$this->queue}");
                 $workStarted = microtime(true);
-                $code        = $this->work($job, $input, $output);
-                $timeTaken   = microtime(true) - $workStarted;
+                $code = $this->work($job, $input, $output);
+                $timeTaken = microtime(true) - $workStarted;
 
                 $debugCode = var_export($code, true);
                 $logger->debug("Work completed on job {$job->getId()} with return code '{$debugCode}' taking {$timeTaken}");
 
                 if ($code != 0) {
-                    throw new LogicException("Non zero exit code $code.");
+                    throw new LogicException("Non zero exit code {$code}.");
                 }
                 $jobQueue->markAsComplete($job);
                 $logger->info("Job {$job->getId()} completed");
@@ -68,11 +65,11 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                 }
             }
         }
+
+        return 0;
     }
 
     /**
-     * @param JobQueueInterface $jobQueue
-     * @param LoggerInterface $logger
      * @return JobInterface|null
      * @throws \Exception
      */
@@ -97,25 +94,17 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
      * @throws LogicException When this abstract method is not implemented
      * @see setCode()
      */
-    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output)
+    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): void
     {
         throw new LogicException('You must override the work() method in the concrete command class.');
     }
 
-    /**
-     * @return JobQueueInterface
-     * @throws LogicException
-     */
-    protected function getJobQueue()
+    protected function getJobQueue(): JobQueueInterface
     {
         throw new LogicException('You must override the getJobQueue() method in the concrete command class.');
     }
 
-    /**
-     * @param OutputInterface $output An OutputInterface instance
-     * @return \Psr\Log\LoggerInterface|NullLogger
-     */
-    protected function getLogger($output)
+    protected function getLogger(OutputInterface $output): LoggerInterface
     {
         if (!$this->logger) {
             $this->logger = new NullLogger();
@@ -123,20 +112,20 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         return $this->logger;
     }
 
-    private function logException(LoggerInterface $logger, $message, \Exception $exception, $job = null)
+    private function logException(LoggerInterface $logger, $message, \Exception $exception, $job = null): void
     {
         $context = [
-            'qClass'    => get_class($this->getJobQueue()),
-            'xMessage'  => $exception->getMessage(),
-            'xFile'     => $exception->getFile(),
-            'xLine'     => $exception->getLine(),
-            'xTrace'    => $exception->getTraceAsString()
+            'qClass' => get_class($this->getJobQueue()),
+            'xMessage' => $exception->getMessage(),
+            'xFile' => $exception->getFile(),
+            'xLine' => $exception->getLine(),
+            'xTrace' => $exception->getTraceAsString(),
         ];
         if ($job instanceof JobInterface) {
-            $context['jId']       = $job->getId();
-            $context['jDelay']    = $job->getDelay();
+            $context['jId'] = $job->getId();
+            $context['jDelay'] = $job->getDelay();
             $context['jPriority'] = $job->getPriority();
-            $context['jTtr']      = $job->getTtr();
+            $context['jTtr'] = $job->getTtr();
         }
         $logger->error($message, $context);
     }

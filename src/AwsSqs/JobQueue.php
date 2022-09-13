@@ -13,19 +13,29 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
 class JobQueue implements JobQueueInterface
 {
-    /** @var SqsClient */
+    /**
+     * @var SqsClient
+     */
     private $client;
 
-    /** @var SchedulerInterface */
+    /**
+     * @var SchedulerInterface
+     */
     private $scheduler;
 
-    /** @var int Seconds */
+    /**
+     * @var int Seconds
+     */
     private $retrieveTimeout = 10;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $queues = [];
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $queuePrefix;
 
     public function __construct(SqsClient $client, SchedulerInterface $scheduler, $queuePrefix = '')
@@ -36,27 +46,32 @@ class JobQueue implements JobQueueInterface
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $data
+     * @param int|string|null $id
      */
-    public function createJob($queue, $data, $id = null, $delay = Job::DEFAULT_DELAY, $priority = Job::DEFAULT_PRIORITY, $ttr = Job::DEFAULT_TTR)
-    {
+    public function createJob(
+        string $queue,
+        $data,
+        $id = null,
+        $delay = Job::DEFAULT_DELAY,
+        $priority = Job::DEFAULT_PRIORITY,
+        $ttr = Job::DEFAULT_TTR
+    ): JobInterface {
         return new Job($queue, $data, $id, $delay, $priority, $ttr);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function put(JobInterface $job)
+    public function put(JobInterface $job): self
     {
         try {
             if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
-                return $this->scheduler->store($job);
+                $this->scheduler->store($job);
+                return $this;
             }
 
             $this->client->sendMessage([
-                'QueueUrl'     => $this->getQueueUrlWithPrefix($job->getQueue()),
+                'QueueUrl' => $this->getQueueUrlWithPrefix($job->getQueue()),
                 'DelaySeconds' => $job->getDelay(),
-                'MessageBody'  => JobFactory::serializeBody($job),
+                'MessageBody' => JobFactory::serializeBody($job),
             ]);
             return $this;
         } catch (SqsException $exception) {
@@ -64,16 +79,13 @@ class JobQueue implements JobQueueInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function retrieve($queue)
+    public function retrieve(string $queue): ?JobInterface
     {
         try {
             $result = $this->client->receiveMessage([
                 'QueueUrl' => $this->getQueueUrlWithPrefix($queue),
                 'WaitTimeSeconds' => $this->retrieveTimeout,
-                'MaxNumberOfMessages' => 1
+                'MaxNumberOfMessages' => 1,
             ]);
 
             if (!isset($result['Messages'])) {
@@ -86,54 +98,51 @@ class JobQueue implements JobQueueInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsComplete(JobInterface $job)
+    public function markAsComplete(JobInterface $job): self
     {
         try {
             $this->client->deleteMessage([
-                'QueueUrl'      => $this->getQueueUrlWithPrefix($job->getQueue()),
+                'QueueUrl' => $this->getQueueUrlWithPrefix($job->getQueue()),
                 'ReceiptHandle' => $job->getId(),
             ]);
         } catch (SqsException $exception) {
             throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsIncomplete(JobInterface $job)
+    public function markAsIncomplete(JobInterface $job): self
     {
         $this->markAsComplete($job);
         $job->setDelay(0);
         $this->put($job);
+
+        return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsError(JobInterface $job)
+    public function markAsError(JobInterface $job): self
     {
         try {
             $queue = $job->getQueue();
             $deadletter = $this->determineDeadletterQueue($queue);
 
             $this->client->deleteMessage([
-                'QueueUrl'      => $this->getQueueUrlWithPrefix($queue),
+                'QueueUrl' => $this->getQueueUrlWithPrefix($queue),
                 'ReceiptHandle' => $job->getId(),
             ]);
 
             $job->setDelay(0);
             $this->client->sendMessage([
-                'QueueUrl'     => $this->getQueueUrl($deadletter),
+                'QueueUrl' => $this->getQueueUrl($deadletter),
                 'DelaySeconds' => 0,
-                'MessageBody'  => JobFactory::serializeBody($job),
+                'MessageBody' => JobFactory::serializeBody($job),
             ]);
         } catch (SqsException $exception) {
             throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
         }
+
+        return $this;
     }
 
     private function getQueueUrlWithPrefix($name)
@@ -146,7 +155,9 @@ class JobQueue implements JobQueueInterface
     {
         if (!isset($this->queues[$name])) {
             try {
-                $result = $this->client->getQueueUrl(['QueueName' => $name]);
+                $result = $this->client->getQueueUrl([
+                    'QueueName' => $name,
+                ]);
                 $this->queues[$name] = $result->get('QueueUrl');
             } catch (SqsException $exception) {
                 throw new InvalidArgumentException("Specified queue '{$name}' does not exist", $exception->getCode(), $exception);
@@ -162,7 +173,7 @@ class JobQueue implements JobQueueInterface
         try {
             $result = $this->client->getQueueAttributes([
                 'QueueUrl' => $this->getQueueUrlWithPrefix($queue),
-                'AttributeNames' => ['RedrivePolicy']
+                'AttributeNames' => ['RedrivePolicy'],
             ]);
             $arnJson = $result->search('Attributes.RedrivePolicy');
             if (empty($arnJson)) {

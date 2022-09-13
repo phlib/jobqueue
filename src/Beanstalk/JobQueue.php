@@ -22,14 +22,10 @@ class JobQueue implements JobQueueInterface
     protected $scheduler;
 
     /**
-     * @var int Seconds
+     * @var int|null Seconds
      */
     protected $retrieveTimeout = 5;
 
-    /**
-     * @param ConnectionInterface $beanstalk
-     * @param SchedulerInterface $scheduler
-     */
     public function __construct(ConnectionInterface $beanstalk, SchedulerInterface $scheduler)
     {
         $this->beanstalk = $beanstalk;
@@ -37,94 +33,83 @@ class JobQueue implements JobQueueInterface
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $data
+     * @param int|string|null $id
      */
-    public function createJob($queue, $data, $id, $delay, $priority, $ttr)
+    public function createJob(string $queue, $data, $id, int $delay, int $priority, int $ttr): JobInterface
     {
         return new Job($queue, $data, $id, $delay, $priority, $ttr);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function put(JobInterface $job)
+    public function put(JobInterface $job): self
     {
         if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
-            return $this->scheduler->store($job);
-        } else {
-            return $this->beanstalk
-                ->useTube($job->getQueue())
-                ->put(JobFactory::serializeBody($job), $job->getPriority(), $job->getDelay(), $job->getTtr());
+            $this->scheduler->store($job);
+            return $this;
         }
+
+        $this->beanstalk
+            ->useTube($job->getQueue())
+            ->put(JobFactory::serializeBody($job), $job->getPriority(), $job->getDelay(), $job->getTtr());
+        return $this;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getRetrieveTimeout()
+    public function getRetrieveTimeout(): ?int
     {
         return $this->retrieveTimeout;
     }
 
-    /**
-     * @param int|null $value
-     * @return $this
-     */
-    public function setRetrieveTimeout($value)
+    public function setRetrieveTimeout(?int $value): self
     {
-        $options = ['options' => ['min_range' => 0]];
+        $options = [
+            'options' => [
+                'min_range' => 0,
+            ],
+        ];
         if ($value !== null && filter_var($value, FILTER_VALIDATE_INT, $options) === false) {
-            throw new InvalidArgumentException("Specified retrieve timeout value is not valid.");
+            throw new InvalidArgumentException('Specified retrieve timeout value is not valid.');
         }
         $this->retrieveTimeout = $value;
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function retrieve($queue)
+    public function retrieve(string $queue): ?JobInterface
     {
         $this->beanstalk->watch($queue);
         $this->beanstalk->ignore('default');
 
         $data = $this->beanstalk->reserve($this->retrieveTimeout);
         if ($data === false) {
-            return false;
+            return null;
         }
         return JobFactory::createFromRaw($data);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsComplete(JobInterface $job)
+    public function markAsComplete(JobInterface $job): self
     {
-        return $this->beanstalk->delete($job->getId());
+        $this->beanstalk->delete($job->getId());
+        return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsIncomplete(JobInterface $job)
+    public function markAsIncomplete(JobInterface $job): self
     {
         if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
             if ($job->getId() !== null) {
                 $this->beanstalk->delete($job->getId());
             }
-            return $this->scheduler->store($job);
-        } else {
-            return $this->beanstalk
-                ->useTube($job->getQueue())
-                ->release($job->getId(), $job->getPriority(), $job->getDelay());
+            $this->scheduler->store($job);
+            return $this;
         }
+
+        $this->beanstalk
+            ->useTube($job->getQueue())
+            ->release($job->getId(), $job->getPriority(), $job->getDelay());
+        return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function markAsError(JobInterface $job)
+    public function markAsError(JobInterface $job): self
     {
-        return $this->beanstalk->bury($job->getId());
+        $this->beanstalk->bury($job->getId());
+        return $this;
     }
 }

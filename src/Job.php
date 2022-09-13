@@ -8,14 +8,16 @@ namespace Phlib\JobQueue;
  */
 class Job implements JobInterface
 {
-    const DEFAULT_DELAY    = 0;
-    const DEFAULT_PRIORITY = 1024;
-    const DEFAULT_TTR      = 60;
+    public const DEFAULT_DELAY = 0;
+
+    public const DEFAULT_PRIORITY = 1024;
+
+    public const DEFAULT_TTR = 60;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $queue = null;
+    protected $queue;
 
     /**
      * @var int|string|null
@@ -43,26 +45,21 @@ class Job implements JobInterface
     protected $body;
 
     /**
-     * Job constructor.
-     * @param string $queue
      * @param mixed $body
      * @param int|string|null $id
-     * @param int $delay
-     * @param int $priority
-     * @param int $ttr
      */
     public function __construct(
-        $queue,
+        string $queue,
         $body,
         $id = null,
-        $delay = self::DEFAULT_DELAY,
-        $priority = self::DEFAULT_PRIORITY,
-        $ttr = self::DEFAULT_TTR
+        int $delay = self::DEFAULT_DELAY,
+        int $priority = self::DEFAULT_PRIORITY,
+        int $ttr = self::DEFAULT_TTR
     ) {
         $this->queue = $queue;
-        $this->body  = $body;
-        $this->id    = $id;
-        $this->delay = (int)$delay;
+        $this->body = $body;
+        $this->id = $id;
+        $this->delay = $delay;
         $this->setPriority($priority);
         $this->setTtr($ttr);
     }
@@ -75,10 +72,7 @@ class Job implements JobInterface
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getQueue()
+    public function getQueue(): string
     {
         return $this->queue;
     }
@@ -91,37 +85,23 @@ class Job implements JobInterface
         return $this->body;
     }
 
-    /**
-     * @return int
-     */
-    public function getDelay()
+    public function getDelay(): int
     {
         return $this->delay;
     }
 
-    /**
-     * @return \DateTimeImmutable
-     */
-    public function getDatetimeDelay()
+    public function getDatetimeDelay(): \DateTimeImmutable
     {
         return (new \DateTimeImmutable())->setTimestamp(time() + $this->getDelay());
     }
 
-    /**
-     * @param int $value
-     * @return $this
-     */
-    public function setDelay($value)
+    public function setDelay(int $value): self
     {
         $this->delay = (int)$value;
         return $this;
     }
 
-    /**
-     * @param \DateTimeInterface $value
-     * @return $this
-     */
-    public function setDatetimeDelay(\DateTimeInterface $value)
+    public function setDatetimeDelay(\DateTimeInterface $value): self
     {
         $value = time() - $value->getTimestamp();
         if ($value < 0) {
@@ -131,39 +111,25 @@ class Job implements JobInterface
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getTtr()
+    public function getTtr(): int
     {
         return $this->ttr;
     }
 
-    /**
-     * @param int $value
-     * @return $this
-     */
-    public function setTtr($value)
+    public function setTtr(int $value): self
     {
-        $this->ttr = (int)$value;
+        $this->ttr = $value;
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getPriority()
+    public function getPriority(): int
     {
         return $this->priority;
     }
 
-    /**
-     * @param int $value
-     * @return $this
-     */
-    public function setPriority($value)
+    public function setPriority(int $value): self
     {
-        $this->priority = (int)$value;
+        $this->priority = $value;
         return $this;
     }
 }

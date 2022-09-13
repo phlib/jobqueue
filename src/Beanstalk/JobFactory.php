@@ -2,11 +2,11 @@
 
 namespace Phlib\JobQueue\Beanstalk;
 
+use Phlib\Beanstalk\Connection;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Exception\JobRuntimeException;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
-use Phlib\Beanstalk\Connection;
 
 /**
  * Class JobFactory
@@ -14,13 +14,7 @@ use Phlib\Beanstalk\Connection;
  */
 class JobFactory
 {
-    /**
-     * @param array $data
-     * @return Job|false
-     * @throws InvalidArgumentException
-     * @throws JobRuntimeException
-     */
-    public static function createFromRaw(array $data)
+    public static function createFromRaw(array $data): Job
     {
         if (!isset($data['id']) || !isset($data['body'])) {
             throw new InvalidArgumentException('Specified raw data is missing required elements.');
@@ -28,7 +22,11 @@ class JobFactory
 
         $specification = @unserialize($data['body']);
         if (!is_array($specification)) {
-            $job = static::createFromSpecification(['queue' => false, 'id' => $data['id'], 'body' => 'false']);
+            $job = static::createFromSpecification([
+                'queue' => false,
+                'id' => $data['id'],
+                'body' => 'false',
+            ]);
             throw new JobRuntimeException($job, 'Failed to extract job data.');
         }
 
@@ -36,12 +34,7 @@ class JobFactory
         return static::createFromSpecification($specification);
     }
 
-    /**
-     * @param array $data
-     * @return Job
-     * @throws InvalidArgumentException
-     */
-    public static function createFromSpecification(array $data)
+    public static function createFromSpecification(array $data): Job
     {
         if (!isset($data['body']) || !isset($data['queue'])) {
             throw new \InvalidArgumentException('Missing required job data.');
@@ -54,26 +47,22 @@ class JobFactory
 
         // merge default values if any are missing
         $data = $data + [
-            'delay'    => Connection::DEFAULT_DELAY,
+            'delay' => Connection::DEFAULT_DELAY,
             'priority' => Connection::DEFAULT_PRIORITY,
-            'ttr'      => Connection::DEFAULT_TTR
+            'ttr' => Connection::DEFAULT_TTR,
         ];
 
         return new Job($data['queue'], $data['body'], $id, $data['delay'], $data['priority'], $data['ttr']);
     }
 
-    /**
-     * @param JobInterface $job
-     * @return string
-     */
-    public static function serializeBody(JobInterface $job)
+    public static function serializeBody(JobInterface $job): string
     {
         return serialize([
-            'queue'    => $job->getQueue(),
-            'body'     => $job->getBody(),
-            'delay'    => $job->getDelay(),
+            'queue' => $job->getQueue(),
+            'body' => $job->getBody(),
+            'delay' => $job->getDelay(),
             'priority' => $job->getPriority(),
-            'ttr'      => $job->getTtr()
+            'ttr' => $job->getTtr(),
         ]);
     }
 }

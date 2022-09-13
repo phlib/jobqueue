@@ -21,28 +21,18 @@ class MonitorDependencies
      */
     protected $scheduler;
 
-    /**
-     * @param JobQueueInterface $jobQueue
-     * @param SchedulerInterface $scheduler
-     */
     public function __construct(JobQueueInterface $jobQueue, SchedulerInterface $scheduler)
     {
         $this->jobQueue = $jobQueue;
         $this->scheduler = $scheduler;
     }
 
-    /**
-     * @return JobQueueInterface
-     */
-    public function getJobQueue()
+    public function getJobQueue(): JobQueueInterface
     {
         return $this->jobQueue;
     }
 
-    /**
-     * @return SchedulerInterface
-     */
-    public function getScheduler()
+    public function getScheduler(): SchedulerInterface
     {
         return $this->scheduler;
     }

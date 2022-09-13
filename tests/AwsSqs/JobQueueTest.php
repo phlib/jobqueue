@@ -1,4 +1,5 @@
 <?php
+
 namespace Phlib\JobQueue\Tests\AwsSqs;
 
 use Aws\Result;
@@ -6,20 +7,23 @@ use Aws\Sqs\SqsClient;
 use Phlib\JobQueue\AwsSqs\JobQueue;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 class JobQueueTest extends TestCase
 {
-    public function testCreateJob()
+    public function testCreateJob(): void
     {
         $queuePrefix = 'prefix-';
-        $sqsClient = $this->getMockBuilder(SqsClient::class)->disableOriginalConstructor()->getMock();
-        $scheduler = $this->getMock(SchedulerInterface::class);
+        $sqsClient = $this->createMock(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
         $jobQueue = new JobQueue($sqsClient, $scheduler, $queuePrefix);
 
         $queue = 'mockQueue';
-        $data = ['userId' => 123];
+        $data = [
+            'userId' => 123,
+        ];
         $id = 456;
         $delay = 75;
         $priority = 256;
@@ -35,17 +39,19 @@ class JobQueueTest extends TestCase
         $this->assertEquals($ttr, $job->getTtr());
     }
 
-    public function testRetrieve()
+    public function testRetrieve(): void
     {
         $sqsClient = $this->prophesize(SqsClient::class);
-        $scheduler = $this->getMock(SchedulerInterface::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
 
         $queuePrefix = 'prefix-';
         $queue = 'mockQueue';
         $queueUrl = 'mockQueueUrl';
 
         // We expect to fetch the URL for the queue with the prefix
-        $sqsClient->getQueueUrl(['QueueName' => $queuePrefix . $queue])
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
             ->shouldBeCalledOnce()
             ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
 
@@ -56,10 +62,10 @@ class JobQueueTest extends TestCase
         $jobQueue->retrieve($queue);
     }
 
-    public function testMarkAsErrorWithPrefix()
+    public function testMarkAsErrorWithPrefix(): void
     {
         $sqsClient = $this->prophesize(SqsClient::class);
-        $scheduler = $this->getMock(SchedulerInterface::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
 
         $queuePrefix = 'prefix-';
         $queue = 'mockQueue';
@@ -68,14 +74,17 @@ class JobQueueTest extends TestCase
         $deadletterQueueUrl = 'mockDeadletterQueueUrl';
         $jobId = 123;
 
-
         // We expect to fetch the URL for the queue with the prefix
-        $sqsClient->getQueueUrl(['QueueName' => $queuePrefix . $queue])
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
             ->shouldBeCalledOnce()
             ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
 
         // We expect to fetch the URL for the deadletter queue
-        $sqsClient->getQueueUrl(['QueueName' => $deadLetterQueue])
+        $sqsClient->getQueueUrl([
+            'QueueName' => $deadLetterQueue,
+        ])
             ->shouldBeCalledOnce()
             ->willReturn($this->mockAwsResult([['QueueUrl', $deadletterQueueUrl]]));
 
@@ -83,13 +92,18 @@ class JobQueueTest extends TestCase
         $sqsClient->getQueueAttributes(Argument::withEntry('QueueUrl', $queueUrl))
             ->shouldBeCalledOnce()
             ->willReturn(
-                $this->mockAwsResult([
-                    ['Attributes.RedrivePolicy', json_encode(['deadLetterTargetArn' => "arn:{$deadLetterQueue}"])]
-                ])
+                $this->mockAwsResult([[
+                    'Attributes.RedrivePolicy', json_encode([
+                        'deadLetterTargetArn' => "arn:{$deadLetterQueue}",
+                    ]),
+                ]])
             );
 
         // We expect to remove the job from the main queue
-        $sqsClient->deleteMessage(['QueueUrl' => $queueUrl, 'ReceiptHandle' => $jobId])
+        $sqsClient->deleteMessage([
+            'QueueUrl' => $queueUrl,
+            'ReceiptHandle' => $jobId,
+        ])
             ->shouldBeCalledOnce();
 
         // We expect to push a job to the deadletter queue
@@ -100,9 +114,9 @@ class JobQueueTest extends TestCase
         $jobQueue->markAsError($job);
     }
 
-    private function mockAwsResult(array $valueMap)
+    private function mockAwsResult(array $valueMap): MockObject
     {
-        $result = $this->getMock(Result::class);
+        $result = $this->createMock(Result::class);
         $result->method('get')->will($this->returnValueMap($valueMap));
         $result->method('search')->will($this->returnValueMap($valueMap));
         return $result;

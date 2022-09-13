@@ -2,22 +2,27 @@
 
 namespace Phlib\JobQueue\Tests\Beanstalk;
 
+use Phlib\Beanstalk\Connection\ConnectionInterface;
 use Phlib\JobQueue\Beanstalk\JobFactory;
 use Phlib\JobQueue\Beanstalk\JobQueue;
+use Phlib\JobQueue\Exception\InvalidArgumentException;
+use Phlib\JobQueue\Exception\JobRuntimeException;
 use Phlib\JobQueue\Job;
+use Phlib\JobQueue\JobInterface;
+use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
-use Phlib\Beanstalk\Connection\ConnectionInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-
-class JobQueueTest extends \PHPUnit_Framework_TestCase
+class JobQueueTest extends TestCase
 {
     /**
-     * @var ConnectionInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var ConnectionInterface|MockObject
      */
     protected $beanstalk;
 
     /**
-     * @var SchedulerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var SchedulerInterface|MockObject
      */
     protected $scheduler;
 
@@ -26,97 +31,110 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
      */
     protected $jobQueue;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
-        $this->beanstalk = $this->getMock('\Phlib\Beanstalk\Connection\ConnectionInterface');
-        $this->scheduler = $this->getMock('\Phlib\JobQueue\Scheduler\SchedulerInterface');
-        $this->jobQueue  = new JobQueue($this->beanstalk, $this->scheduler);
+        $this->beanstalk = $this->createMock(ConnectionInterface::class);
+        $this->scheduler = $this->createMock(SchedulerInterface::class);
+        $this->jobQueue = new JobQueue($this->beanstalk, $this->scheduler);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        $this->jobQueue  = null;
+        $this->jobQueue = null;
         $this->scheduler = null;
         $this->beanstalk = null;
         parent::tearDown();
     }
 
-    public function testIsInstanceOfJobQueueInterface()
+    public function testIsInstanceOfJobQueueInterface(): void
     {
-        $this->assertInstanceOf('\Phlib\JobQueue\JobQueueInterface', $this->jobQueue);
+        static::assertInstanceOf(JobQueueInterface::class, $this->jobQueue);
     }
 
-    public function testPutForImmediateJobCallsBeanstalk()
+    public function testPutForImmediateJobCallsBeanstalk(): void
     {
         $jobId = 123;
-        $this->scheduler->expects($this->any())
+        $this->scheduler->expects(static::once())
             ->method('shouldBeScheduled')
             ->willReturn(false);
-        $this->beanstalk->expects($this->any())
+        $this->beanstalk->expects(static::once())
             ->method('useTube')
-            ->will($this->returnSelf());
-        $this->beanstalk->expects($this->once())
+            ->willReturnSelf();
+        $this->beanstalk->expects(static::once())
             ->method('put')
-            ->will($this->returnValue($jobId));
+            ->willReturn($jobId);
 
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
-        $this->assertEquals($jobId, $this->jobQueue->put($job));
+        $job = $this->createMock(JobInterface::class);
+        $job->method('getDelay')
+            ->willReturn(rand(1, 100));
+
+        $this->jobQueue->put($job);
     }
 
-    public function testPutForProlongedJobCallsScheduler()
+    public function testPutForProlongedJobCallsScheduler(): void
     {
         $jobId = 123;
-        $job   = $this->getMock('\Phlib\JobQueue\JobInterface');
+        $job = $this->createMock(JobInterface::class);
 
-        $this->scheduler->expects($this->any())
+        $job->method('getDelay')
+            ->willReturn(rand(1, 100));
+
+        $this->scheduler->expects(static::once())
             ->method('shouldBeScheduled')
             ->willReturn(true);
-        $this->scheduler->expects($this->once())
+        $this->scheduler->expects(static::once())
             ->method('store')
-            ->with($this->equalTo($job))
-            ->will($this->returnValue($jobId));
+            ->with($job)
+            ->willReturn($jobId);
 
-        $this->assertEquals($jobId, $this->jobQueue->put($job));
+        $this->jobQueue->put($job);
     }
 
-    public function testRetrieveSuccessfully()
+    public function testRetrieveSuccessfully(): void
     {
         $jobId = 123;
-        $body  = ['queue' => 'TestQueue', 'body' => 'TestBody'];
-        $this->beanstalk->expects($this->any())
+        $body = [
+            'queue' => 'TestQueue',
+            'body' => 'TestBody',
+        ];
+        $this->beanstalk->expects(static::once())
             ->method('reserve')
-            ->will($this->returnValue(['id' => $jobId, 'body' => serialize($body)]));
-        $this->assertEquals($jobId, $this->jobQueue->retrieve('testQueue')->getId());
+            ->willReturn([
+                'id' => $jobId,
+                'body' => serialize($body),
+            ]);
+        static::assertEquals($jobId, $this->jobQueue->retrieve('testQueue')->getId());
     }
 
-    public function testRetrieveWhenNoJobsAvailable()
+    public function testRetrieveWhenNoJobsAvailable(): void
     {
-        $this->beanstalk->expects($this->any())
+        $this->beanstalk->expects(static::once())
             ->method('reserve')
-            ->will($this->returnValue(false));
-        $this->assertFalse($this->jobQueue->retrieve('testQueue'));
+            ->willReturn(false);
+        static::assertNull($this->jobQueue->retrieve('testQueue'));
     }
 
-    /**
-     * @expectedException \Phlib\JobQueue\Exception\InvalidArgumentException
-     */
-    public function testRetrieveWithBadlyFormedBeanstalkData()
+    public function testRetrieveWithBadlyFormedBeanstalkData(): void
     {
-        $this->beanstalk->expects($this->any())
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->beanstalk->expects(static::once())
             ->method('reserve')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->jobQueue->retrieve('testQueue');
     }
 
-    /**
-     * @expectedException \Phlib\JobQueue\Exception\JobRuntimeException
-     */
-    public function testRetrieveWithBadlyFormedJobBody()
+    public function testRetrieveWithBadlyFormedJobBody(): void
     {
-        $this->beanstalk->expects($this->any())
+        $this->expectException(JobRuntimeException::class);
+
+        $this->beanstalk->expects(static::once())
             ->method('reserve')
-            ->will($this->returnValue(['id' => 234, 'body' => serialize('SomeStuffHere')]));
+            ->willReturn([
+                'id' => 234,
+                'body' => serialize('SomeStuffHere'),
+            ]);
         $this->jobQueue->retrieve('testQueue');
     }
 
@@ -124,88 +142,108 @@ class JobQueueTest extends \PHPUnit_Framework_TestCase
      * @param mixed $jobData
      * @dataProvider jobDataMaintainsExpectedTypeDataProvider
      */
-    public function testJobDataMaintainsExpectedType($jobData)
+    public function testJobDataMaintainsExpectedType($jobData): void
     {
         $package = JobFactory::serializeBody(new Job('TestQueue', $jobData));
-        $this->beanstalk->expects($this->any())
+        $this->beanstalk->expects(static::once())
             ->method('reserve')
-            ->will($this->returnValue(['id' => 234, 'body' => $package]));
+            ->willReturn([
+                'id' => 234,
+                'body' => $package,
+            ]);
         $job = $this->jobQueue->retrieve('TestQueue');
-        $this->assertEquals($jobData, $job->getBody());
+        static::assertEquals($jobData, $job->getBody());
     }
 
-    public function jobDataMaintainsExpectedTypeDataProvider()
+    public function jobDataMaintainsExpectedTypeDataProvider(): array
     {
         return [
-            [['foo' => 'bar', 'bar' => 'baz']],
+            [[
+                'foo' => 'bar',
+                'bar' => 'baz',
+            ]],
             ['SomeStringData'],
             [123],
             [123.34],
             // [null], // <-- null not accepted
             [[]],
             [false],
-            [true]
+            [true],
         ];
     }
 
-    public function testMarkAsCompleteDeletesBeanstalkJob()
+    public function testMarkAsCompleteDeletesBeanstalkJob(): void
     {
         $jobId = 123;
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
-        $job->expects($this->any())
+        $job = $this->createMock(JobInterface::class);
+        $job->expects(static::once())
             ->method('getId')
-            ->will($this->returnValue($jobId));
-        $this->beanstalk->expects($this->once())
+            ->willReturn($jobId);
+
+        $this->beanstalk->expects(static::once())
             ->method('delete')
-            ->with($this->equalTo($jobId));
+            ->with($jobId)
+            ->willReturn($this->beanstalk);
+
         $this->jobQueue->markAsComplete($job);
     }
 
-    public function testMarkAsIncompleteReleasesBeanstalkJobWhenDelayIsMoreImmediate()
+    public function testMarkAsIncompleteReleasesBeanstalkJobWhenDelayIsMoreImmediate(): void
     {
         $jobId = 123;
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
-        $job->expects($this->any())
+        $job = $this->createMock(JobInterface::class);
+        $job->expects(static::once())
             ->method('getId')
-            ->will($this->returnValue($jobId));
-        $this->scheduler->expects($this->any())
+            ->willReturn($jobId);
+        $job->method('getDelay')
+            ->willReturn(rand(1, 100));
+
+        $this->scheduler->expects(static::once())
             ->method('shouldBeScheduled')
-            ->will($this->returnValue(false));
-        $this->beanstalk->expects($this->any())
+            ->willReturn(false);
+
+        $this->beanstalk->expects(static::once())
             ->method('useTube')
-            ->will($this->returnSelf());
-        $this->beanstalk->expects($this->once())
+            ->willReturnSelf();
+        $this->beanstalk->expects(static::once())
             ->method('release')
-            ->with($this->equalTo($jobId));
+            ->with($jobId)
+            ->willReturn($this->beanstalk);
+
         $this->jobQueue->markAsIncomplete($job);
     }
 
-    public function testMarkAsIncompleteReleasesBeanstalkJobWhenDelayIsMoreProlonged()
+    public function testMarkAsIncompleteReleasesBeanstalkJobWhenDelayIsMoreProlonged(): void
     {
         $jobId = 123;
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
-        $job->expects($this->any())
+        $job = $this->createMock(JobInterface::class);
+        $job->expects(static::atLeastOnce())
             ->method('getId')
-            ->will($this->returnValue($jobId));
-        $this->scheduler->expects($this->any())
+            ->willReturn($jobId);
+        $job->method('getDelay')
+            ->willReturn(rand(1, 100));
+
+        $this->scheduler->expects(static::once())
             ->method('shouldBeScheduled')
-            ->will($this->returnValue(true));
-        $this->scheduler->expects($this->once())
+            ->willReturn(true);
+        $this->scheduler->expects(static::once())
             ->method('store')
-            ->with($this->equalTo($job));
+            ->with($job);
         $this->jobQueue->markAsIncomplete($job);
     }
 
-    public function testMarkAsErrorBuriesBeanstalkJob()
+    public function testMarkAsErrorBuriesBeanstalkJob(): void
     {
         $jobId = 123;
-        $job = $this->getMock('\Phlib\JobQueue\JobInterface');
-        $job->expects($this->any())
+        $job = $this->createMock(JobInterface::class);
+        $job->expects(static::once())
             ->method('getId')
-            ->will($this->returnValue($jobId));
-        $this->beanstalk->expects($this->once())
+            ->willReturn($jobId);
+        $this->beanstalk->expects(static::once())
             ->method('bury')
-            ->with($this->equalTo($jobId));
+            ->with($jobId)
+            ->willReturn($this->beanstalk);
+
         $this->jobQueue->markAsError($job);
     }
 }
