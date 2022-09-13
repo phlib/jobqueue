@@ -69,11 +69,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         return 0;
     }
 
-    /**
-     * @return JobInterface|null
-     * @throws \Exception
-     */
-    private function retrieve(JobQueueInterface $jobQueue, LoggerInterface $logger)
+    private function retrieve(JobQueueInterface $jobQueue, LoggerInterface $logger): ?JobInterface
     {
         try {
             return $jobQueue->retrieve($this->queue);
@@ -84,17 +80,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         }
     }
 
-    /**
-     * Work on the current job.
-     *
-     * @param JobInterface  $job  A JobInterface instance
-     * @param InputInterface  $input  An InputInterface instance
-     * @param OutputInterface $output An OutputInterface instance
-     * @return null|int null or 0 if everything went fine, or an error code
-     * @throws LogicException When this abstract method is not implemented
-     * @see setCode()
-     */
-    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): void
+    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): int
     {
         throw new LogicException('You must override the work() method in the concrete command class.');
     }

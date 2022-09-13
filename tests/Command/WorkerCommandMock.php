@@ -36,11 +36,12 @@ class WorkerCommandMock extends WorkerCommand
         $this->runOnce = $runOnce;
     }
 
-    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): void
+    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): int
     {
         if ($this->runOnce) {
             $this->continue = false;
         }
+        return 0;
     }
 
     public function shouldContinue(bool $state): void
