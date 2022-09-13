@@ -170,7 +170,7 @@ class JobQueue implements JobQueueInterface
                 throw new RuntimeException("Specified queue '{$name}' does not have a Redrive Policy");
             }
 
-            $targetArn = json_decode($arnJson, true)['deadLetterTargetArn'];
+            $targetArn = json_decode($arnJson, true, 512, JSON_THROW_ON_ERROR)['deadLetterTargetArn'];
             return substr($targetArn, strrpos($targetArn, ':') + 1);
         } catch (SqsException $exception) {
             throw new RuntimeException("Specified queue '{$name}' does not have a Redrive Policy");
