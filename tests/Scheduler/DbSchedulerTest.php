@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Tests\Scheduler;
 
 use Phlib\Db\Adapter;
@@ -95,7 +97,7 @@ class DbSchedulerTest extends TestCase
             'id' => 1,
             'tube' => 'queue',
             'data' => serialize('someData'),
-            'scheduled_ts' => time(),
+            'scheduled_ts' => date('Y-m-d H:i:s'),
             'priority' => 1024,
             'ttr' => 60,
         ];

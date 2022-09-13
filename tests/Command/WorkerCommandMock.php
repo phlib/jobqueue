@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Command;
 
 use Phlib\JobQueue\JobInterface;

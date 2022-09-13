@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Command;
 
 use Phlib\ConsoleProcess\Command\DaemonCommand;
@@ -48,7 +50,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                 $debugCode = var_export($code, true);
                 $logger->debug("Work completed on job {$job->getId()} with return code '{$debugCode}' taking {$timeTaken}");
 
-                if ($code != 0) {
+                if ($code !== 0) {
                     throw new LogicException("Non zero exit code {$code}.");
                 }
                 $jobQueue->markAsComplete($job);

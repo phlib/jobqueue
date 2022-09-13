@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Beanstalk;
 
 use Phlib\Beanstalk\Connection\ConnectionInterface;

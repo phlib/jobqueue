@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Db\Adapter;
@@ -73,7 +75,7 @@ class DbScheduler implements SchedulerInterface
         $stmt = $this->adapter->query($sql, [
             ':minimumPickup' => $this->minimumPickup,
         ]);
-        if ($stmt->rowCount() == 0) {
+        if ($stmt->rowCount() === 0) {
             return false; // no jobs
         }
 

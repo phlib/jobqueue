@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Command;
 
 require __DIR__ . '/WorkerCommandMock.php';

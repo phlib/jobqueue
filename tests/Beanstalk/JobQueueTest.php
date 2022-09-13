@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Tests\Beanstalk;
 
 use Phlib\Beanstalk\Connection\ConnectionInterface;
@@ -74,7 +76,6 @@ class JobQueueTest extends TestCase
 
     public function testPutForProlongedJobCallsScheduler(): void
     {
-        $jobId = 123;
         $job = $this->createMock(JobInterface::class);
 
         $job->method('getDelay')
@@ -86,7 +87,7 @@ class JobQueueTest extends TestCase
         $this->scheduler->expects(static::once())
             ->method('store')
             ->with($job)
-            ->willReturn($jobId);
+            ->willReturn(true);
 
         $this->jobQueue->put($job);
     }
