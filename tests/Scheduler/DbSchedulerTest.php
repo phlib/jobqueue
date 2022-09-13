@@ -23,7 +23,7 @@ class DbSchedulerTest extends TestCase
      */
     private Adapter\QuoteHandler $quote;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->adapter = $this->createMock(Adapter::class);
@@ -33,7 +33,7 @@ class DbSchedulerTest extends TestCase
             ->willReturn($this->quote);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset(
             $this->quote,

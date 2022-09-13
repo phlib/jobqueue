@@ -30,7 +30,7 @@ class JobQueueTest extends TestCase
 
     private JobQueue $jobQueue;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->beanstalk = $this->createMock(ConnectionInterface::class);
@@ -38,7 +38,7 @@ class JobQueueTest extends TestCase
         $this->jobQueue = new JobQueue($this->beanstalk, $this->scheduler);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset(
             $this->jobQueue,
