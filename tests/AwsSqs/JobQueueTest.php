@@ -15,6 +15,8 @@ use Prophecy\Argument;
 
 class JobQueueTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
+
     public function testCreateJob(): void
     {
         $queuePrefix = 'prefix-';

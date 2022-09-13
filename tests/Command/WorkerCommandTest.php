@@ -47,12 +47,9 @@ class WorkerCommandTest extends TestCase
     {
         // need to do at least one job to exit the loop of work
         $job = $this->getMockForAbstractClass(JobInterface::class);
-        $this->jobQueue->expects(static::at(0))
+        $this->jobQueue->expects(static::once())
             ->method('retrieve')
             ->willReturn($job);
-        $this->jobQueue->expects(static::at(1))
-            ->method('retrieve')
-            ->willReturn(null);
         $command = new WorkerCommandMock($this->jobQueue);
         $code = $command->run($this->input, $this->output);
         static::assertEquals(0, $code);
@@ -76,12 +73,9 @@ class WorkerCommandTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $job = $this->getMockForAbstractClass(JobInterface::class);
-        $this->jobQueue->expects(static::at(0))
+        $this->jobQueue->expects(static::once())
             ->method('retrieve')
             ->willReturn($job);
-        $this->jobQueue->expects(static::at(1))
-            ->method('retrieve')
-            ->willReturn(null);
         $this->jobQueue->expects(static::once())
             ->method('markAsComplete')
             ->willThrowException(new InvalidArgumentException());
