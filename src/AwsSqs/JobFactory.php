@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\AwsSqs;
 
 use Phlib\JobQueue\Exception\InvalidArgumentException;
@@ -20,7 +22,7 @@ class JobFactory
             'delay' => $job->getDelay(),
             'priority' => $job->getPriority(),
             'ttr' => $job->getTtr(),
-        ]);
+        ], JSON_THROW_ON_ERROR);
     }
 
     public static function createFromRaw(array $data): Job
@@ -28,7 +30,7 @@ class JobFactory
         if (!isset($data['ReceiptHandle'], $data['Body'])) {
             throw new InvalidArgumentException('Specified raw data is missing required elements.');
         }
-        $specification = json_decode($data['Body'], true);
+        $specification = json_decode($data['Body'], true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($specification)) {
             $job = static::createFromSpecification([
                 'queue' => false,

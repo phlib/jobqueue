@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Console;
 
 use Phlib\JobQueue\JobQueueInterface;
@@ -11,15 +13,9 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
  */
 class MonitorDependencies
 {
-    /**
-     * @var JobQueueInterface
-     */
-    protected $jobQueue;
+    protected JobQueueInterface $jobQueue;
 
-    /**
-     * @var SchedulerInterface
-     */
-    protected $scheduler;
+    protected SchedulerInterface $scheduler;
 
     public function __construct(JobQueueInterface $jobQueue, SchedulerInterface $scheduler)
     {

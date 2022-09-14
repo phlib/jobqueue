@@ -1,61 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue;
 
 interface JobInterface
 {
     /**
-     * @return string|integer|null
+     * @return string|int|null
      */
     public function getId();
 
-    /**
-     * @return string
-     */
-    public function getQueue();
+    public function getQueue(): string;
 
     /**
      * @return mixed
      */
     public function getBody();
 
-    /**
-     * @return int
-     */
-    public function getDelay();
+    public function getDelay(): int;
 
-    /**
-     * @return \DateTime
-     */
-    public function getDatetimeDelay();
+    public function getDatetimeDelay(): \DateTimeImmutable;
 
-    /**
-     * @return $this
-     */
-    public function setDelay(int $value);
+    public function setDelay(int $value): self;
 
-    /**
-     * @return $this
-     */
-    public function setDatetimeDelay(\DateTimeInterface $value);
+    public function setDatetimeDelay(\DateTimeInterface $value): self;
 
-    /**
-     * @return int
-     */
-    public function getTtr();
+    public function getTtr(): int;
 
-    /**
-     * @return $this
-     */
-    public function setTtr(int $value);
+    public function setTtr(int $value): self;
 
-    /**
-     * @return int
-     */
-    public function getPriority();
+    public function getPriority(): int;
 
-    /**
-     * @return $this
-     */
-    public function setPriority(int $value);
+    public function setPriority(int $value): self;
 }

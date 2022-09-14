@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Db\Adapter;
@@ -11,20 +13,11 @@ use Phlib\JobQueue\JobInterface;
  */
 class DbScheduler implements SchedulerInterface
 {
-    /**
-     * @var QuotableAdapterInterface
-     */
-    protected $adapter;
+    protected Adapter $adapter;
 
-    /**
-     * @var integer
-     */
-    protected $maximumDelay;
+    protected int $maximumDelay;
 
-    /**
-     * @var integer
-     */
-    private $minimumPickup;
+    private int $minimumPickup;
 
     /**
      * @param integer $maximumDelay
@@ -73,7 +66,7 @@ class DbScheduler implements SchedulerInterface
         $stmt = $this->adapter->query($sql, [
             ':minimumPickup' => $this->minimumPickup,
         ]);
-        if ($stmt->rowCount() == 0) {
+        if ($stmt->rowCount() === 0) {
             return false; // no jobs
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Tests\Beanstalk;
 
 use Phlib\Beanstalk\Connection\ConnectionInterface;
@@ -19,19 +21,16 @@ class JobQueueTest extends TestCase
     /**
      * @var ConnectionInterface|MockObject
      */
-    protected $beanstalk;
+    private ConnectionInterface $beanstalk;
 
     /**
      * @var SchedulerInterface|MockObject
      */
-    protected $scheduler;
+    private SchedulerInterface $scheduler;
 
-    /**
-     * @var JobQueue
-     */
-    protected $jobQueue;
+    private JobQueue $jobQueue;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->beanstalk = $this->createMock(ConnectionInterface::class);
@@ -39,11 +38,13 @@ class JobQueueTest extends TestCase
         $this->jobQueue = new JobQueue($this->beanstalk, $this->scheduler);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
-        $this->jobQueue = null;
-        $this->scheduler = null;
-        $this->beanstalk = null;
+        unset(
+            $this->jobQueue,
+            $this->scheduler,
+            $this->beanstalk,
+        );
         parent::tearDown();
     }
 
@@ -74,7 +75,6 @@ class JobQueueTest extends TestCase
 
     public function testPutForProlongedJobCallsScheduler(): void
     {
-        $jobId = 123;
         $job = $this->createMock(JobInterface::class);
 
         $job->method('getDelay')
@@ -86,7 +86,7 @@ class JobQueueTest extends TestCase
         $this->scheduler->expects(static::once())
             ->method('store')
             ->with($job)
-            ->willReturn($jobId);
+            ->willReturn(true);
 
         $this->jobQueue->put($job);
     }

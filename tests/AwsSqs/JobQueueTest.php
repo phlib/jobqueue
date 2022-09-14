@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Tests\AwsSqs;
 
 use Aws\Result;
@@ -13,6 +15,8 @@ use Prophecy\Argument;
 
 class JobQueueTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
+
     public function testCreateJob(): void
     {
         $queuePrefix = 'prefix-';

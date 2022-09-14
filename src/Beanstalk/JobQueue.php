@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Beanstalk;
 
 use Phlib\Beanstalk\Connection\ConnectionInterface;
@@ -11,20 +13,11 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
 class JobQueue implements JobQueueInterface
 {
-    /**
-     * @var ConnectionInterface
-     */
-    protected $beanstalk;
+    protected ConnectionInterface $beanstalk;
 
-    /**
-     * @var SchedulerInterface
-     */
-    protected $scheduler;
+    protected SchedulerInterface $scheduler;
 
-    /**
-     * @var int|null Seconds
-     */
-    protected $retrieveTimeout = 5;
+    protected ?int $retrieveTimeout = 5;
 
     public function __construct(ConnectionInterface $beanstalk, SchedulerInterface $scheduler)
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Command;
 
 require __DIR__ . '/WorkerCommandMock.php';
@@ -17,17 +19,17 @@ class WorkerCommandTest extends TestCase
     /**
      * @var JobQueueInterface|MockObject
      */
-    protected $jobQueue;
+    private JobQueueInterface $jobQueue;
 
     /**
      * @var InputInterface|MockObject
      */
-    protected $input;
+    private InputInterface $input;
 
     /**
      * @var OutputInterface|MockObject
      */
-    protected $output;
+    private OutputInterface $output;
 
     protected function setUp(): void
     {
@@ -45,12 +47,9 @@ class WorkerCommandTest extends TestCase
     {
         // need to do at least one job to exit the loop of work
         $job = $this->getMockForAbstractClass(JobInterface::class);
-        $this->jobQueue->expects(static::at(0))
+        $this->jobQueue->expects(static::once())
             ->method('retrieve')
             ->willReturn($job);
-        $this->jobQueue->expects(static::at(1))
-            ->method('retrieve')
-            ->willReturn(null);
         $command = new WorkerCommandMock($this->jobQueue);
         $code = $command->run($this->input, $this->output);
         static::assertEquals(0, $code);
@@ -74,12 +73,9 @@ class WorkerCommandTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $job = $this->getMockForAbstractClass(JobInterface::class);
-        $this->jobQueue->expects(static::at(0))
+        $this->jobQueue->expects(static::once())
             ->method('retrieve')
             ->willReturn($job);
-        $this->jobQueue->expects(static::at(1))
-            ->method('retrieve')
-            ->willReturn(null);
         $this->jobQueue->expects(static::once())
             ->method('markAsComplete')
             ->willThrowException(new InvalidArgumentException());

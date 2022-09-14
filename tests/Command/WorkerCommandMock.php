@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Command;
 
 use Phlib\JobQueue\JobInterface;
@@ -9,25 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class WorkerCommandMock extends WorkerCommand
 {
-    /**
-     * @var string
-     */
-    protected $queue = 'mockQueue';
+    protected string $queue = 'mockQueue';
 
-    /**
-     * @var JobQueueInterface
-     */
-    protected $jobQueue;
+    private JobQueueInterface $jobQueue;
 
-    /**
-     * @var bool
-     */
-    protected $runOnce;
+    private bool $runOnce;
 
-    /**
-     * @var bool
-     */
-    protected $exitOnException = true;
+    protected bool $exitOnException = true;
 
     public function __construct(JobQueueInterface $jobQueue, $runOnce = true)
     {
@@ -36,11 +26,12 @@ class WorkerCommandMock extends WorkerCommand
         $this->runOnce = $runOnce;
     }
 
-    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): void
+    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): int
     {
         if ($this->runOnce) {
             $this->continue = false;
         }
+        return 0;
     }
 
     public function shouldContinue(bool $state): void

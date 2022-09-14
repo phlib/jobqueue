@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\AwsSqs;
 
 use Aws\Sqs\Exception\SqsException;
@@ -13,25 +15,13 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
 class JobQueue implements JobQueueInterface
 {
-    /**
-     * @var SqsClient
-     */
-    private $client;
+    private SqsClient $client;
 
-    /**
-     * @var SchedulerInterface
-     */
-    private $scheduler;
+    private SchedulerInterface $scheduler;
 
-    /**
-     * @var int Seconds
-     */
-    private $retrieveTimeout = 10;
+    private int $retrieveTimeout = 10;
 
-    /**
-     * @var array
-     */
-    private $queues = [];
+    private array $queues = [];
 
     /**
      * @var string
@@ -180,7 +170,7 @@ class JobQueue implements JobQueueInterface
                 throw new RuntimeException("Specified queue '{$name}' does not have a Redrive Policy");
             }
 
-            $targetArn = json_decode($arnJson, true)['deadLetterTargetArn'];
+            $targetArn = json_decode($arnJson, true, 512, JSON_THROW_ON_ERROR)['deadLetterTargetArn'];
             return substr($targetArn, strrpos($targetArn, ':') + 1);
         } catch (SqsException $exception) {
             throw new RuntimeException("Specified queue '{$name}' does not have a Redrive Policy");

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Beanstalk;
 
 use Phlib\Beanstalk\Connection;
@@ -23,7 +25,7 @@ class JobFactory
         $specification = @unserialize($data['body']);
         if (!is_array($specification)) {
             $job = static::createFromSpecification([
-                'queue' => false,
+                'queue' => '',
                 'id' => $data['id'],
                 'body' => 'false',
             ]);

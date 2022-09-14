@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "php": "^7.2",
+        "php": "^7.4",
         "ext-json": "*",
 
         "phlib/beanstalk": "^1.0.0",
@@ -27,7 +27,9 @@
     },
     "require-dev": {
         "symplify/easy-coding-standard": "^11",
-        "phpunit/phpunit": "^7"
+        "phpspec/prophecy": "^1",
+        "phpspec/prophecy-phpunit": "^2",
+        "phpunit/phpunit": "^9"
     },
     "autoload": {
         "psr-4": {

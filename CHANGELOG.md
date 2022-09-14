@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Type declarations have been added to all method parameters and return types
-  where possible.
+- Type declarations have been added to all properties, method parameters and
+  return types where possible.
 ### Changed
 - Improve worker command handling exceptions from job queue library.
 - Worker command error log context keys changed to use `camelCase`.
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   If an implementation was catching `SqsException` it should now catch a
   `Phlib\JobQueue\Exception` class instead.
 ### Removed
-- **BC break**: Removed support for PHP versions <= v7.1 as they are no longer
+- **BC break**: Removed support for PHP versions <= v7.3 as they are no longer
   [actively supported](https://php.net/supported-versions.php) by the PHP project
 
 ## [1.1.1] - 2018-11-15

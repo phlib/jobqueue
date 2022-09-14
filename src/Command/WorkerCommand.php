@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Command;
 
 use Phlib\ConsoleProcess\Command\DaemonCommand;
@@ -19,15 +21,9 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $queue;
+    protected string $queue;
 
-    /**
-     * @var bool
-     */
-    protected $exitOnException = false;
+    protected bool $exitOnException = false;
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -48,7 +44,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
                 $debugCode = var_export($code, true);
                 $logger->debug("Work completed on job {$job->getId()} with return code '{$debugCode}' taking {$timeTaken}");
 
-                if ($code != 0) {
+                if ($code !== 0) {
                     throw new LogicException("Non zero exit code {$code}.");
                 }
                 $jobQueue->markAsComplete($job);
@@ -69,11 +65,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         return 0;
     }
 
-    /**
-     * @return JobInterface|null
-     * @throws \Exception
-     */
-    private function retrieve(JobQueueInterface $jobQueue, LoggerInterface $logger)
+    private function retrieve(JobQueueInterface $jobQueue, LoggerInterface $logger): ?JobInterface
     {
         try {
             return $jobQueue->retrieve($this->queue);
@@ -84,17 +76,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         }
     }
 
-    /**
-     * Work on the current job.
-     *
-     * @param JobInterface  $job  A JobInterface instance
-     * @param InputInterface  $input  An InputInterface instance
-     * @param OutputInterface $output An OutputInterface instance
-     * @return null|int null or 0 if everything went fine, or an error code
-     * @throws LogicException When this abstract method is not implemented
-     * @see setCode()
-     */
-    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): void
+    protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): int
     {
         throw new LogicException('You must override the work() method in the concrete command class.');
     }

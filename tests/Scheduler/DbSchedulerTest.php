@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\JobQueue\Tests\Scheduler;
 
 use Phlib\Db\Adapter;
@@ -14,14 +16,14 @@ class DbSchedulerTest extends TestCase
     /**
      * @var Adapter|MockObject
      */
-    protected $adapter;
+    private Adapter $adapter;
 
     /**
      * @var Adapter\QuoteHandler|MockObject
      */
-    protected $quote;
+    private Adapter\QuoteHandler $quote;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->adapter = $this->createMock(Adapter::class);
@@ -31,10 +33,12 @@ class DbSchedulerTest extends TestCase
             ->willReturn($this->quote);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
-        $this->quote = null;
-        $this->adapter = null;
+        unset(
+            $this->quote,
+            $this->adapter,
+        );
         parent::tearDown();
     }
 
@@ -70,7 +74,7 @@ class DbSchedulerTest extends TestCase
         $job = $this->createMock(JobInterface::class);
         $job->expects(static::once())
             ->method('getDatetimeDelay')
-            ->willReturn(new \DateTime());
+            ->willReturn(new \DateTimeImmutable());
 
         $scheduler = new DbScheduler($this->adapter);
         static::assertTrue($scheduler->store($job));
@@ -95,7 +99,7 @@ class DbSchedulerTest extends TestCase
             'id' => 1,
             'tube' => 'queue',
             'data' => serialize('someData'),
-            'scheduled_ts' => time(),
+            'scheduled_ts' => date('Y-m-d H:i:s'),
             'priority' => 1024,
             'ttr' => 60,
         ];
