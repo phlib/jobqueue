@@ -17,9 +17,9 @@
         "php": "^7.4",
         "ext-json": "*",
 
-        "phlib/beanstalk": "^1.0.0",
+        "phlib/beanstalk": "^2",
         "phlib/db": "^2",
-        "phlib/console-configuration": "^1.0",
+        "phlib/console-configuration": "^2",
         "phlib/console-process": "^2",
 
         "psr/log": "^1",

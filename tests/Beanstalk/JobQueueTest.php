@@ -111,7 +111,7 @@ class JobQueueTest extends TestCase
     {
         $this->beanstalk->expects(static::once())
             ->method('reserve')
-            ->willReturn(false);
+            ->willReturn(null);
         static::assertNull($this->jobQueue->retrieve('testQueue'));
     }
 

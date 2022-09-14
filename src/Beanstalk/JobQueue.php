@@ -72,7 +72,7 @@ class JobQueue implements JobQueueInterface
         $this->beanstalk->ignore('default');
 
         $data = $this->beanstalk->reserve($this->retrieveTimeout);
-        if ($data === false) {
+        if ($data === null) {
             return null;
         }
         return JobFactory::createFromRaw($data);
