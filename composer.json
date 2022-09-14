@@ -14,15 +14,15 @@
         }
     ],
     "require": {
-        "php": "^7.4",
+        "php": "^7.4 || ^8.0",
         "ext-json": "*",
 
-        "phlib/beanstalk": "^1.0.0",
-        "phlib/db": "^1.0.0",
-        "phlib/console-configuration": "^1.0",
-        "phlib/console-process": "^1.0.0",
+        "phlib/beanstalk": "^2",
+        "phlib/db": "^2",
+        "phlib/console-configuration": "^2",
+        "phlib/console-process": "^2",
 
-        "psr/log": "~1.0.0",
+        "psr/log": "^1",
         "aws/aws-sdk-php": "^3.61"
     },
     "require-dev": {
