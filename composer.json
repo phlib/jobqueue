@@ -18,7 +18,7 @@
         "ext-json": "*",
 
         "phlib/beanstalk": "^1.0.0",
-        "phlib/db": "^1.0.0",
+        "phlib/db": "^2",
         "phlib/console-configuration": "^1.0",
         "phlib/console-process": "^1.0.0",
 
