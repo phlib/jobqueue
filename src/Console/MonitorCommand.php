@@ -40,7 +40,6 @@ class MonitorCommand extends DaemonCommand
         $this->setName('monitor')
             ->setDescription('Monitor the schedule for pending jobs.')
             ->addOption('log', 'l', InputOption::VALUE_REQUIRED, "A file to send log out to. If no path is specified then it's disabled.");
-        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
