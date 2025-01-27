@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Phlib\JobQueue\Tests\AwsSqs;
+namespace Phlib\JobQueue\AwsSqs;
 
 use Aws\Result;
 use Aws\Sqs\SqsClient;
-use Phlib\JobQueue\AwsSqs\JobQueue;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use PHPUnit\Framework\MockObject\MockObject;

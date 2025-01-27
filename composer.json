@@ -37,9 +37,9 @@
         }
     },
     "autoload-dev": {
-       "psr-4": {
-           "Phlib\\JobQueue\\Tests\\": "tests/"
-       }
+        "psr-4": {
+            "Phlib\\JobQueue\\": "tests/"
+        }
     },
     "bin": ["bin/jobqueue"],
     "scripts": {

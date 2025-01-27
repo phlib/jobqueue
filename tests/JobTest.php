@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Phlib\JobQueue\Tests;
+namespace Phlib\JobQueue;
 
-use Phlib\JobQueue\Job;
-use Phlib\JobQueue\JobInterface;
 use PHPUnit\Framework\TestCase;
 
 /**

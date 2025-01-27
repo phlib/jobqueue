@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Phlib\JobQueue\Tests\Scheduler;
+namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Db\Adapter;
 use Phlib\JobQueue\JobInterface;
-use Phlib\JobQueue\Scheduler\DbScheduler;
-use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

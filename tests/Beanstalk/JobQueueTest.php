@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Phlib\JobQueue\Tests\Beanstalk;
+namespace Phlib\JobQueue\Beanstalk;
 
 use Phlib\Beanstalk\Connection\ConnectionInterface;
-use Phlib\JobQueue\Beanstalk\JobFactory;
-use Phlib\JobQueue\Beanstalk\JobQueue;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Exception\JobRuntimeException;
 use Phlib\JobQueue\Job;
