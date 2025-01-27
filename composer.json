@@ -41,9 +41,11 @@
             "Phlib\\JobQueue\\": "tests/"
         }
     },
-    "bin": ["bin/jobqueue"],
+    "bin": [
+        "bin/jobqueue"
+    ],
     "scripts": {
-        "cs-check": "vendor/bin/ecs",
-        "cs-fix": "vendor/bin/ecs --fix"
+        "check-cs": "vendor/bin/ecs check --ansi",
+        "fix-cs": "vendor/bin/ecs check --fix --ansi"
     }
 }
