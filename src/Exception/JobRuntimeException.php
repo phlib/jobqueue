@@ -6,6 +6,9 @@ namespace Phlib\JobQueue\Exception;
 
 use Phlib\JobQueue\JobInterface;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class JobRuntimeException extends RuntimeException
 {
     /**

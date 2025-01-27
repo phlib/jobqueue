@@ -8,8 +8,7 @@ use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
 /**
- * Class MonitorDependencies
- * @package Phlib\JobQueue\Console
+ * @package Phlib\JobQueue
  */
 class MonitorDependencies
 {

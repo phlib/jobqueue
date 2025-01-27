@@ -14,6 +14,9 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class WorkerCommandTest extends TestCase
 {
     /**

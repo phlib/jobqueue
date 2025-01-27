@@ -16,6 +16,9 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class JobQueueTest extends TestCase
 {
     /**

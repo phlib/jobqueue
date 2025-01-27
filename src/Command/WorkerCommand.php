@@ -17,6 +17,9 @@ use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
 {
     use LoggerAwareTrait;

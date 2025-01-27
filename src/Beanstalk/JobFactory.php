@@ -11,8 +11,7 @@ use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
 
 /**
- * Class JobFactory
- * @package Phlib\JobQueue\Beanstalk
+ * @package Phlib\JobQueue
  */
 class JobFactory
 {

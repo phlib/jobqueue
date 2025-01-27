@@ -8,7 +8,6 @@ use Phlib\Db\Adapter;
 use Phlib\JobQueue\JobInterface;
 
 /**
- * Class DbScheduler
  * @package Phlib\JobQueue
  */
 class DbScheduler implements SchedulerInterface

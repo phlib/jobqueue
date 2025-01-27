@@ -13,6 +13,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class JobQueueTest extends TestCase
 {
     use \Prophecy\PhpUnit\ProphecyTrait;

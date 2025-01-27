@@ -13,6 +13,9 @@ use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class JobQueue implements JobQueueInterface
 {
     private SqsClient $client;

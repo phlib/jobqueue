@@ -9,6 +9,9 @@ use Phlib\JobQueue\JobQueueInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class WorkerCommandMock extends WorkerCommand
 {
     protected string $queue = 'mockQueue';

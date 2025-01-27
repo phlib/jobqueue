@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phlib\JobQueue;
 
 /**
- * Class Job
  * @package Phlib\JobQueue
  */
 class Job implements JobInterface

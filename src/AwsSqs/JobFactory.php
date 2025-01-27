@@ -9,6 +9,9 @@ use Phlib\JobQueue\Exception\JobRuntimeException;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class JobFactory
 {
     /**

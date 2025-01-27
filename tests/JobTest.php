@@ -8,6 +8,9 @@ use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @package Phlib\JobQueue
+ */
 class JobTest extends TestCase
 {
     public function testInstanceOfJobInterface(): void

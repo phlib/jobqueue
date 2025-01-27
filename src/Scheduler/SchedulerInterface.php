@@ -7,7 +7,6 @@ namespace Phlib\JobQueue\Scheduler;
 use Phlib\JobQueue\JobInterface;
 
 /**
- * Interface SchedulerInterface
  * @package Phlib\JobQueue
  */
 interface SchedulerInterface
