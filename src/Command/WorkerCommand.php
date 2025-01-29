@@ -97,7 +97,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         return $this->logger;
     }
 
-    private function logException(LoggerInterface $logger, $message, \Exception $exception, $job = null): void
+    private function logException(LoggerInterface $logger, string $message, \Exception $exception, $job = null): void
     {
         $context = [
             'qClass' => get_class($this->getJobQueue()),

@@ -15,13 +15,7 @@ interface SchedulerInterface
 
     public function store(JobInterface $job): bool;
 
-    /**
-     * @return array|false
-     */
-    public function retrieve();
+    public function retrieve(): array|false;
 
-    /**
-     * @param int|string $jobId
-     */
-    public function remove($jobId): bool;
+    public function remove(int|string $jobId): bool;
 }

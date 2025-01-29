@@ -16,24 +16,22 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
  */
 class JobQueue implements JobQueueInterface
 {
-    protected ConnectionInterface $beanstalk;
-
-    protected SchedulerInterface $scheduler;
-
     protected ?int $retrieveTimeout = 5;
 
-    public function __construct(ConnectionInterface $beanstalk, SchedulerInterface $scheduler)
-    {
-        $this->beanstalk = $beanstalk;
-        $this->scheduler = $scheduler;
+    public function __construct(
+        protected ConnectionInterface $beanstalk,
+        protected SchedulerInterface $scheduler,
+    ) {
     }
 
-    /**
-     * @param mixed $data
-     * @param int|string|null $id
-     */
-    public function createJob(string $queue, $data, $id, int $delay, int $priority, int $ttr): JobInterface
-    {
+    public function createJob(
+        string $queue,
+        mixed $data,
+        int|string|null $id,
+        int $delay,
+        int $priority,
+        int $ttr,
+    ): JobInterface {
         return new Job($queue, $data, $id, $delay, $priority, $ttr);
     }
 

@@ -19,15 +19,9 @@ use PHPUnit\Framework\TestCase;
  */
 class JobQueueTest extends TestCase
 {
-    /**
-     * @var ConnectionInterface|MockObject
-     */
-    private ConnectionInterface $beanstalk;
+    private ConnectionInterface&MockObject $beanstalk;
 
-    /**
-     * @var SchedulerInterface|MockObject
-     */
-    private SchedulerInterface $scheduler;
+    private SchedulerInterface&MockObject $scheduler;
 
     private JobQueue $jobQueue;
 

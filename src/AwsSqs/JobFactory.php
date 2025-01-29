@@ -14,10 +14,7 @@ use Phlib\JobQueue\JobInterface;
  */
 class JobFactory
 {
-    /**
-     * @return string
-     */
-    public static function serializeBody(JobInterface $job)
+    public static function serializeBody(JobInterface $job): string
     {
         return json_encode([
             'queue' => $job->getQueue(),

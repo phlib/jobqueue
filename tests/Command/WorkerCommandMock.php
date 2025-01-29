@@ -16,17 +16,13 @@ class WorkerCommandMock extends WorkerCommand
 {
     protected string $queue = 'mockQueue';
 
-    private JobQueueInterface $jobQueue;
-
-    private bool $runOnce;
-
     protected bool $exitOnException = true;
 
-    public function __construct(JobQueueInterface $jobQueue, $runOnce = true)
-    {
+    public function __construct(
+        private readonly JobQueueInterface $jobQueue,
+        private readonly bool $runOnce = true,
+    ) {
         parent::__construct();
-        $this->jobQueue = $jobQueue;
-        $this->runOnce = $runOnce;
     }
 
     protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): int

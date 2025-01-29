@@ -14,15 +14,9 @@ use PHPUnit\Framework\TestCase;
  */
 class DbSchedulerTest extends TestCase
 {
-    /**
-     * @var Adapter|MockObject
-     */
-    private Adapter $adapter;
+    private Adapter&MockObject $adapter;
 
-    /**
-     * @var Adapter\QuoteHandler|MockObject
-     */
-    private Adapter\QuoteHandler $quote;
+    private Adapter\QuoteHandler&MockObject $quote;
 
     protected function setUp(): void
     {

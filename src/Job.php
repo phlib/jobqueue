@@ -15,48 +15,23 @@ class Job implements JobInterface
 
     public const DEFAULT_TTR = 60;
 
-    protected string $queue;
-
-    /**
-     * @var int|string|null
-     */
-    protected $id;
-
-    protected int $delay;
-
     protected int $priority;
 
     protected int $ttr;
 
-    /**
-     * @var mixed
-     */
-    protected $body;
-
-    /**
-     * @param mixed $body
-     * @param int|string|null $id
-     */
     public function __construct(
-        string $queue,
-        $body,
-        $id = null,
-        int $delay = self::DEFAULT_DELAY,
+        protected string $queue,
+        protected mixed $body,
+        protected int|string|null $id = null,
+        protected int $delay = self::DEFAULT_DELAY,
         int $priority = self::DEFAULT_PRIORITY,
         int $ttr = self::DEFAULT_TTR
     ) {
-        $this->queue = $queue;
-        $this->body = $body;
-        $this->id = $id;
-        $this->delay = $delay;
         $this->setPriority($priority);
         $this->setTtr($ttr);
     }
 
-    /**
-     * @return int|string|null
-     */
-    public function getId()
+    public function getId(): int|string|null
     {
         return $this->id;
     }
@@ -66,10 +41,7 @@ class Job implements JobInterface
         return $this->queue;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getBody()
+    public function getBody(): mixed
     {
         return $this->body;
     }
@@ -86,7 +58,7 @@ class Job implements JobInterface
 
     public function setDelay(int $value): self
     {
-        $this->delay = (int)$value;
+        $this->delay = $value;
         return $this;
     }
 
