@@ -28,6 +28,8 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
 
     protected bool $exitOnException = false;
 
+    protected bool $queueContinue = true;
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->queue === null) {
@@ -37,7 +39,7 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
         $jobQueue = $this->getJobQueue();
         $logger = $this->getLogger($output);
 
-        while ($this->continue && ($job = $this->retrieve($jobQueue, $logger)) instanceof JobInterface) {
+        while ($this->queueContinue && ($job = $this->retrieve($jobQueue, $logger)) instanceof JobInterface) {
             try {
                 $logger->info("Retrieved job {$job->getId()} for {$this->queue}");
                 $workStarted = microtime(true);
@@ -74,7 +76,8 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
             return $jobQueue->retrieve($this->queue);
         } catch (\Exception $e) {
             $this->logException($logger, "Failed to retrieve job due to error '{$e->getMessage()}'", $e);
-            $this->continue = false;
+            $this->queueContinue = false;
+            $this->shutdown();
             throw $e;
         }
     }

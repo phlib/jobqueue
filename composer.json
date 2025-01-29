@@ -20,7 +20,7 @@
         "phlib/beanstalk": "^2",
         "phlib/db": "^2",
         "phlib/console-configuration": "^2",
-        "phlib/console-process": "^2",
+        "phlib/console-process": "^3 || ^4",
 
         "psr/log": "^1",
         "aws/aws-sdk-php": "^3.61"

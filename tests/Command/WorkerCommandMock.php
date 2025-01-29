@@ -28,14 +28,10 @@ class WorkerCommandMock extends WorkerCommand
     protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): int
     {
         if ($this->runOnce) {
-            $this->continue = false;
+            $this->queueContinue = false;
+            $this->shutdown();
         }
         return 0;
-    }
-
-    public function shouldContinue(bool $state): void
-    {
-        $this->continue = $state;
     }
 
     protected function getJobQueue(): JobQueueInterface
