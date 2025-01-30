@@ -12,21 +12,11 @@ use Phlib\JobQueue\JobInterface;
  */
 class DbScheduler implements SchedulerInterface
 {
-    protected Adapter $adapter;
-
-    protected int $maximumDelay;
-
-    private int $minimumPickup;
-
-    /**
-     * @param integer $maximumDelay
-     * @param integer $minimumPickup
-     */
-    public function __construct(Adapter $adapter, $maximumDelay = 300, $minimumPickup = 600)
-    {
-        $this->adapter = $adapter;
-        $this->maximumDelay = $maximumDelay;
-        $this->minimumPickup = $minimumPickup;
+    public function __construct(
+        protected Adapter $adapter,
+        protected int $maximumDelay = 300,
+        private readonly int $minimumPickup = 600,
+    ) {
     }
 
     public function shouldBeScheduled($delay): bool
@@ -47,10 +37,7 @@ class DbScheduler implements SchedulerInterface
         ]);
     }
 
-    /**
-     * @return array|false
-     */
-    public function retrieve()
+    public function retrieve(): array|false
     {
         $sql = '
             UPDATE scheduled_queue SET
@@ -88,10 +75,7 @@ class DbScheduler implements SchedulerInterface
         ];
     }
 
-    /**
-     * @param int|string $jobId
-     */
-    public function remove($jobId): bool
+    public function remove(int|string $jobId): bool
     {
         $table = $this->adapter->quote()->identifier('scheduled_queue');
         $sql = "DELETE FROM {$table} WHERE id = ?";

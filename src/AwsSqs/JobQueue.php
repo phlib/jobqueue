@@ -18,34 +18,21 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
  */
 class JobQueue implements JobQueueInterface
 {
-    private SqsClient $client;
-
-    private SchedulerInterface $scheduler;
-
     private int $retrieveTimeout = 10;
 
     private array $queues = [];
 
-    /**
-     * @var string
-     */
-    private $queuePrefix;
-
-    public function __construct(SqsClient $client, SchedulerInterface $scheduler, $queuePrefix = '')
-    {
-        $this->client = $client;
-        $this->scheduler = $scheduler;
-        $this->queuePrefix = $queuePrefix;
+    public function __construct(
+        private readonly SqsClient $client,
+        private readonly SchedulerInterface $scheduler,
+        private string $queuePrefix = '',
+    ) {
     }
 
-    /**
-     * @param mixed $data
-     * @param int|string|null $id
-     */
     public function createJob(
         string $queue,
-        $data,
-        $id = null,
+        mixed $data,
+        int|string|null $id,
         $delay = Job::DEFAULT_DELAY,
         $priority = Job::DEFAULT_PRIORITY,
         $ttr = Job::DEFAULT_TTR
@@ -160,7 +147,7 @@ class JobQueue implements JobQueueInterface
         return $this->queues[$name];
     }
 
-    private function determineDeadletterQueue($queue)
+    private function determineDeadletterQueue(string $queue): string
     {
         $name = $this->queuePrefix . $queue;
         try {
@@ -175,7 +162,7 @@ class JobQueue implements JobQueueInterface
 
             $targetArn = json_decode($arnJson, true, 512, JSON_THROW_ON_ERROR)['deadLetterTargetArn'];
             return substr($targetArn, strrpos($targetArn, ':') + 1);
-        } catch (SqsException $exception) {
+        } catch (SqsException) {
             throw new RuntimeException("Specified queue '{$name}' does not have a Redrive Policy");
         }
     }

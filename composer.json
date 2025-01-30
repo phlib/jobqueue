@@ -14,13 +14,13 @@
         }
     ],
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.1",
         "ext-json": "*",
 
-        "phlib/beanstalk": "^2",
+        "phlib/beanstalk": "^3",
         "phlib/db": "^2",
-        "phlib/console-configuration": "^2",
-        "phlib/console-process": "^2",
+        "phlib/console-configuration": "^2 || ^3",
+        "phlib/console-process": "^3 || ^4",
 
         "psr/log": "^1",
         "aws/aws-sdk-php": "^3.61"

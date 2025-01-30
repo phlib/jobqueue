@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phlib\JobQueue\Beanstalk;
 
-use Phlib\Beanstalk\Connection\ConnectionInterface;
+use Phlib\Beanstalk\ConnectionInterface;
+use Phlib\Beanstalk\Exception\NotFoundException as BeanstalkNotFoundException;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
@@ -16,24 +17,22 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
  */
 class JobQueue implements JobQueueInterface
 {
-    protected ConnectionInterface $beanstalk;
-
-    protected SchedulerInterface $scheduler;
-
     protected ?int $retrieveTimeout = 5;
 
-    public function __construct(ConnectionInterface $beanstalk, SchedulerInterface $scheduler)
-    {
-        $this->beanstalk = $beanstalk;
-        $this->scheduler = $scheduler;
+    public function __construct(
+        protected ConnectionInterface $beanstalk,
+        protected SchedulerInterface $scheduler,
+    ) {
     }
 
-    /**
-     * @param mixed $data
-     * @param int|string|null $id
-     */
-    public function createJob(string $queue, $data, $id, int $delay, int $priority, int $ttr): JobInterface
-    {
+    public function createJob(
+        string $queue,
+        mixed $data,
+        int|string|null $id,
+        int $delay,
+        int $priority,
+        int $ttr,
+    ): JobInterface {
         return new Job($queue, $data, $id, $delay, $priority, $ttr);
     }
 
@@ -44,9 +43,8 @@ class JobQueue implements JobQueueInterface
             return $this;
         }
 
-        $this->beanstalk
-            ->useTube($job->getQueue())
-            ->put(JobFactory::serializeBody($job), $job->getPriority(), $job->getDelay(), $job->getTtr());
+        $this->beanstalk->useTube($job->getQueue());
+        $this->beanstalk->put(JobFactory::serializeBody($job), $job->getPriority(), $job->getDelay(), $job->getTtr());
         return $this;
     }
 
@@ -74,10 +72,15 @@ class JobQueue implements JobQueueInterface
         $this->beanstalk->watch($queue);
         $this->beanstalk->ignore('default');
 
-        $data = $this->beanstalk->reserve($this->retrieveTimeout);
-        if ($data === null) {
+        try {
+            $data = $this->beanstalk->reserve($this->retrieveTimeout);
+        } catch (BeanstalkNotFoundException $e) {
+            if ($e->getCode() !== BeanstalkNotFoundException::RESERVE_NO_JOBS_AVAILABLE_CODE) {
+                throw $e;
+            }
             return null;
         }
+
         return JobFactory::createFromRaw($data);
     }
 
@@ -97,9 +100,8 @@ class JobQueue implements JobQueueInterface
             return $this;
         }
 
-        $this->beanstalk
-            ->useTube($job->getQueue())
-            ->release($job->getId(), $job->getPriority(), $job->getDelay());
+        $this->beanstalk->useTube($job->getQueue());
+        $this->beanstalk->release($job->getId(), $job->getPriority(), $job->getDelay());
         return $this;
     }
 

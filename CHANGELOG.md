@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Type declarations for parameters and return types.
+### Changed
+- Upgraded `phlib/beanstalk` dependency to require v3. 
+- Upgraded `phlib/console-process` dependency to require v3 or v4.
+- Allow `phlib/console-configuration` v3 dependency.
+### Removed
+- **BC break**: Removed support for PHP versions <= v8.0 as they are no longer
+  [actively supported](https://php.net/supported-versions.php) by the PHP project.
 
 ## [2.0.0] - 2022-09-14
 ### Added

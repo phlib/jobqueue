@@ -12,14 +12,10 @@ use Phlib\JobQueue\Scheduler\SchedulerInterface;
  */
 class MonitorDependencies
 {
-    protected JobQueueInterface $jobQueue;
-
-    protected SchedulerInterface $scheduler;
-
-    public function __construct(JobQueueInterface $jobQueue, SchedulerInterface $scheduler)
-    {
-        $this->jobQueue = $jobQueue;
-        $this->scheduler = $scheduler;
+    public function __construct(
+        protected JobQueueInterface $jobQueue,
+        protected SchedulerInterface $scheduler,
+    ) {
     }
 
     public function getJobQueue(): JobQueueInterface

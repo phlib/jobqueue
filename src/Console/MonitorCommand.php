@@ -70,10 +70,10 @@ class MonitorCommand extends DaemonCommand
         );
     }
 
-    protected function createChildOutput(): OutputInterface
+    protected function createChildOutput(?string $childLogFilename): OutputInterface
     {
-        if (empty($this->logFile)) {
-            return parent::createChildOutput();
+        if (!isset($this->logFile) || ($this->logFile === '' || $this->logFile === '0')) {
+            return parent::createChildOutput($childLogFilename);
         }
         return new StreamOutput(fopen($this->logFile, 'ab'));
     }

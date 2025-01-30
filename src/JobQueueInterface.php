@@ -9,11 +9,14 @@ namespace Phlib\JobQueue;
  */
 interface JobQueueInterface
 {
-    /**
-     * @param mixed $data
-     * @param int|string|null $id
-     */
-    public function createJob(string $queue, $data, $id, int $delay, int $priority, int $ttr): JobInterface;
+    public function createJob(
+        string $queue,
+        mixed $data,
+        int|string|null $id,
+        int $delay,
+        int $priority,
+        int $ttr,
+    ): JobInterface;
 
     /**
      * @todo php74 return type self

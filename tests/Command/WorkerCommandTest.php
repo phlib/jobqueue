@@ -19,20 +19,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class WorkerCommandTest extends TestCase
 {
-    /**
-     * @var JobQueueInterface|MockObject
-     */
-    private JobQueueInterface $jobQueue;
+    private JobQueueInterface&MockObject $jobQueue;
 
-    /**
-     * @var InputInterface|MockObject
-     */
-    private InputInterface $input;
+    private InputInterface&MockObject $input;
 
-    /**
-     * @var OutputInterface|MockObject
-     */
-    private OutputInterface $output;
+    private OutputInterface&MockObject $output;
 
     protected function setUp(): void
     {
