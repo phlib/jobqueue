@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phlib\JobQueue\Beanstalk;
 
-use Phlib\Beanstalk\Connection\ConnectionInterface;
+use Phlib\Beanstalk\ConnectionInterface;
+use Phlib\Beanstalk\Exception\NotFoundException as BeanstalkNotFoundException;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Exception\JobRuntimeException;
 use Phlib\JobQueue\Job;
@@ -55,8 +56,7 @@ class JobQueueTest extends TestCase
             ->method('shouldBeScheduled')
             ->willReturn(false);
         $this->beanstalk->expects(static::once())
-            ->method('useTube')
-            ->willReturnSelf();
+            ->method('useTube');
         $this->beanstalk->expects(static::once())
             ->method('put')
             ->willReturn($jobId);
@@ -106,7 +106,10 @@ class JobQueueTest extends TestCase
     {
         $this->beanstalk->expects(static::once())
             ->method('reserve')
-            ->willReturn(null);
+            ->willThrowException(new BeanstalkNotFoundException(
+                BeanstalkNotFoundException::RESERVE_NO_JOBS_AVAILABLE_MSG,
+                BeanstalkNotFoundException::RESERVE_NO_JOBS_AVAILABLE_CODE,
+            ));
         static::assertNull($this->jobQueue->retrieve('testQueue'));
     }
 
@@ -177,8 +180,7 @@ class JobQueueTest extends TestCase
 
         $this->beanstalk->expects(static::once())
             ->method('delete')
-            ->with($jobId)
-            ->willReturn($this->beanstalk);
+            ->with($jobId);
 
         $this->jobQueue->markAsComplete($job);
     }
@@ -198,12 +200,10 @@ class JobQueueTest extends TestCase
             ->willReturn(false);
 
         $this->beanstalk->expects(static::once())
-            ->method('useTube')
-            ->willReturnSelf();
+            ->method('useTube');
         $this->beanstalk->expects(static::once())
             ->method('release')
-            ->with($jobId)
-            ->willReturn($this->beanstalk);
+            ->with($jobId);
 
         $this->jobQueue->markAsIncomplete($job);
     }
@@ -236,8 +236,7 @@ class JobQueueTest extends TestCase
             ->willReturn($jobId);
         $this->beanstalk->expects(static::once())
             ->method('bury')
-            ->with($jobId)
-            ->willReturn($this->beanstalk);
+            ->with($jobId);
 
         $this->jobQueue->markAsError($job);
     }

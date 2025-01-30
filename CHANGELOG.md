@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Type declarations for parameters and return types.
 ### Changed
+- Upgraded `phlib/beanstalk` dependency to require v3. 
 - Upgraded `phlib/console-process` dependency to require v3 or v4.
 ### Removed
 - **BC break**: Removed support for PHP versions <= v8.0 as they are no longer
