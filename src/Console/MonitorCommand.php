@@ -66,7 +66,7 @@ class MonitorCommand extends DaemonCommand
             null,
             $schedulerJob['delay'],
             $schedulerJob['priority'],
-            $schedulerJob['ttr']
+            $schedulerJob['ttr'],
         );
     }
 

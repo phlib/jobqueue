@@ -102,7 +102,7 @@ class JobQueueTest extends TestCase
                     'Attributes.RedrivePolicy', json_encode([
                         'deadLetterTargetArn' => "arn:{$deadLetterQueue}",
                     ]),
-                ]])
+                ]]),
             );
 
         // We expect to remove the job from the main queue

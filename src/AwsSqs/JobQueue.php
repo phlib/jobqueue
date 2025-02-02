@@ -35,7 +35,7 @@ class JobQueue implements JobQueueInterface
         int|string|null $id,
         $delay = Job::DEFAULT_DELAY,
         $priority = Job::DEFAULT_PRIORITY,
-        $ttr = Job::DEFAULT_TTR
+        $ttr = Job::DEFAULT_TTR,
     ): JobInterface {
         return new Job($queue, $data, $id, $delay, $priority, $ttr);
     }

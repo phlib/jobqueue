@@ -25,7 +25,7 @@ class Job implements JobInterface
         protected int|string|null $id = null,
         protected int $delay = self::DEFAULT_DELAY,
         int $priority = self::DEFAULT_PRIORITY,
-        int $ttr = self::DEFAULT_TTR
+        int $ttr = self::DEFAULT_TTR,
     ) {
         $this->setPriority($priority);
         $this->setTtr($ttr);
