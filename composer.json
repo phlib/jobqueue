@@ -29,7 +29,7 @@
         "symplify/easy-coding-standard": "^12",
         "phpspec/prophecy": "^1",
         "phpspec/prophecy-phpunit": "^2",
-        "phpunit/phpunit": "^9"
+        "phpunit/phpunit": "^10"
     },
     "autoload": {
         "psr-4": {

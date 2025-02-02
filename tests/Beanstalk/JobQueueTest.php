@@ -12,6 +12,7 @@ use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -136,11 +137,8 @@ class JobQueueTest extends TestCase
         $this->jobQueue->retrieve('testQueue');
     }
 
-    /**
-     * @param mixed $jobData
-     * @dataProvider jobDataMaintainsExpectedTypeDataProvider
-     */
-    public function testJobDataMaintainsExpectedType($jobData): void
+    #[DataProvider('jobDataMaintainsExpectedTypeDataProvider')]
+    public function testJobDataMaintainsExpectedType(mixed $jobData): void
     {
         $package = JobFactory::serializeBody(new Job('TestQueue', $jobData));
         $this->beanstalk->expects(static::once())
@@ -153,7 +151,7 @@ class JobQueueTest extends TestCase
         static::assertEquals($jobData, $job->getBody());
     }
 
-    public function jobDataMaintainsExpectedTypeDataProvider(): array
+    public static function jobDataMaintainsExpectedTypeDataProvider(): array
     {
         return [
             [[
