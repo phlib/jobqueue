@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Allow `phlib/db` v3 dependency.
 
 ## [3.0.0] - 2025-01-30
 ### Added
