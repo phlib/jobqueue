@@ -22,7 +22,7 @@
         "phlib/console-configuration": "^2 || ^3",
         "phlib/console-process": "^3 || ^4",
 
-        "psr/log": "^1",
+        "psr/log": "^1 || ^2 || ^3",
         "aws/aws-sdk-php": "^3.61"
     },
     "require-dev": {
