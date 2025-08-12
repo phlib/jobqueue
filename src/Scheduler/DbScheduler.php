@@ -20,18 +20,22 @@ class DbScheduler implements BatchableSchedulerInterface
 
     private int $minimumPickup;
 
+    private bool $skipLocked;
+
     private int $batchSize;
 
     /**
      * @param integer $maximumDelay
      * @param integer $minimumPickup
+     * @param boolean $skipLocked
      * @param integer $batchSize
      */
-    public function __construct(Adapter $adapter, $maximumDelay = 300, $minimumPickup = 600, $batchSize = 50)
+    public function __construct(Adapter $adapter, $maximumDelay = 300, $minimumPickup = 600, $skipLocked = false, $batchSize = 50)
     {
         $this->adapter = $adapter;
         $this->maximumDelay = $maximumDelay;
         $this->minimumPickup = $minimumPickup;
+        $this->skipLocked = $skipLocked;
         $this->batchSize = $batchSize;
     }
 
@@ -75,26 +79,47 @@ class DbScheduler implements BatchableSchedulerInterface
      */
     private function queryJobs(int $batchSize)
     {
-        $sql = "
-            UPDATE scheduled_queue SET
-                picked_by = CONNECTION_ID(),
-                picked_ts = NOW()
+        $this->adapter->beginTransaction();
+
+        $sql = <<<SQL
+            SELECT * FROM scheduled_queue
             WHERE
                 scheduled_ts <= CURRENT_TIMESTAMP + INTERVAL :minimumPickup SECOND AND
                 picked_by IS NULL
             ORDER BY
                 scheduled_ts DESC
-            LIMIT {$batchSize}";
+            LIMIT {$batchSize}
+            FOR UPDATE
+            SQL;
+
+        if ($this->skipLocked) {
+            $sql .= ' SKIP LOCKED';
+        }
+
         $stmt = $this->adapter->query($sql, [
             ':minimumPickup' => $this->minimumPickup,
         ]);
 
-        if ($stmt->rowCount() === 0) {
+        $rowCount = $stmt->rowCount();
+
+        if ($rowCount === 0) {
+            $this->adapter->rollBack();
             return false; // no jobs
         }
 
-        $sql = "SELECT * FROM `scheduled_queue` WHERE picked_by = CONNECTION_ID() LIMIT {$batchSize}";
-        $rows = $this->adapter->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $placeholders = implode(',', array_fill(0, $rowCount, '?'));
+        $sql = <<<SQL
+            UPDATE scheduled_queue SET
+                picked_by = CONNECTION_ID(),
+                picked_ts = NOW()
+            WHERE id IN ( {$placeholders} )
+        SQL;
+
+        $this->adapter->query($sql, array_column($rows, 'id'));
+
+        $this->adapter->commit();
 
         $jobs = [];
 

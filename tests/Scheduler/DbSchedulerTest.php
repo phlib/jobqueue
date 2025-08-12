@@ -168,19 +168,19 @@ class DbSchedulerTest extends TestCase
             ],
         ];
 
-        $updateStmt = $this->createMock(\PDOStatement::class);
-        $updateStmt->expects(static::once())
-            ->method('rowCount')
-            ->willReturn(2);
-
         $selectStmt = $this->createMock(\PDOStatement::class);
         $selectStmt->expects(static::once())
             ->method('fetchAll')
             ->willReturn($rowData);
+        $selectStmt->expects(static::once())
+            ->method('rowCount')
+            ->willReturn(2);
+
+        $updateStmt = $this->createMock(\PDOStatement::class);
 
         $this->adapter->expects(static::exactly(2))
             ->method('query')
-            ->willReturnOnConsecutiveCalls($updateStmt, $selectStmt);
+            ->willReturnOnConsecutiveCalls($selectStmt, $updateStmt);
 
         $scheduler = new DbScheduler($this->adapter);
         $jobs = $scheduler->retrieveBatch();
@@ -209,19 +209,19 @@ class DbSchedulerTest extends TestCase
             ],
         ];
 
-        $updateStmt = $this->createMock(\PDOStatement::class);
-        $updateStmt->expects(static::once())
-            ->method('rowCount')
-            ->willReturn(1);
-
         $selectStmt = $this->createMock(\PDOStatement::class);
         $selectStmt->expects(static::once())
             ->method('fetchAll')
             ->willReturn($rowData);
+        $selectStmt->expects(static::once())
+            ->method('rowCount')
+            ->willReturn(1);
+
+        $updateStmt = $this->createMock(\PDOStatement::class);
 
         $this->adapter->expects(static::exactly(2))
             ->method('query')
-            ->willReturnOnConsecutiveCalls($updateStmt, $selectStmt);
+            ->willReturnOnConsecutiveCalls($selectStmt, $updateStmt);
 
         $scheduler = new DbScheduler($this->adapter);
         $jobs = $scheduler->retrieveBatch();
