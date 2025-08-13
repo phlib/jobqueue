@@ -9,9 +9,10 @@ use Phlib\JobQueue\JobInterface;
 
 /**
  * Class DbScheduler
+ *
  * @package Phlib\JobQueue
  */
-class DbScheduler implements SchedulerInterface
+class DbScheduler implements BatchableSchedulerInterface
 {
     protected Adapter $adapter;
 
@@ -19,15 +20,19 @@ class DbScheduler implements SchedulerInterface
 
     private int $minimumPickup;
 
+    private int $batchSize;
+
     /**
      * @param integer $maximumDelay
      * @param integer $minimumPickup
+     * @param integer $batchSize
      */
-    public function __construct(Adapter $adapter, $maximumDelay = 300, $minimumPickup = 600)
+    public function __construct(Adapter $adapter, $maximumDelay = 300, $minimumPickup = 600, $batchSize = 50)
     {
         $this->adapter = $adapter;
         $this->maximumDelay = $maximumDelay;
         $this->minimumPickup = $minimumPickup;
+        $this->batchSize = $batchSize;
     }
 
     public function shouldBeScheduled($delay): bool
@@ -53,7 +58,24 @@ class DbScheduler implements SchedulerInterface
      */
     public function retrieve()
     {
-        $sql = '
+        $job = $this->queryJobs(1);
+        return $job ? $job[0] : false;
+    }
+
+    /**
+     * @return array|false
+     */
+    public function retrieveBatch()
+    {
+        return $this->queryJobs($this->batchSize);
+    }
+
+    /**
+     * @return array|false
+     */
+    private function queryJobs(int $batchSize)
+    {
+        $sql = "
             UPDATE scheduled_queue SET
                 picked_by = CONNECTION_ID(),
                 picked_ts = NOW()
@@ -62,31 +84,38 @@ class DbScheduler implements SchedulerInterface
                 picked_by IS NULL
             ORDER BY
                 scheduled_ts DESC
-            LIMIT 1';
+            LIMIT {$batchSize}";
         $stmt = $this->adapter->query($sql, [
             ':minimumPickup' => $this->minimumPickup,
         ]);
+
         if ($stmt->rowCount() === 0) {
             return false; // no jobs
         }
 
-        $sql = 'SELECT * FROM `scheduled_queue` WHERE picked_by = CONNECTION_ID() LIMIT 1';
-        $row = $this->adapter->query($sql)->fetch(\PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM `scheduled_queue` WHERE picked_by = CONNECTION_ID() LIMIT {$batchSize}";
+        $rows = $this->adapter->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
 
-        $scheduledTime = strtotime($row['scheduled_ts']);
-        $delay = $scheduledTime - time();
-        if ($delay < 0) {
-            $delay = 0;
+        $jobs = [];
+
+        foreach ($rows as $row) {
+            $scheduledTime = strtotime($row['scheduled_ts']);
+            $delay = $scheduledTime - time();
+            if ($delay < 0) {
+                $delay = 0;
+            }
+
+            $jobs[] = [
+                'id' => (int) $row['id'],
+                'queue' => $row['tube'],
+                'data' => unserialize($row['data']),
+                'delay' => $delay,
+                'priority' => (int) $row['priority'],
+                'ttr' => (int) $row['ttr'],
+            ];
         }
 
-        return [
-            'id' => $row['id'],
-            'queue' => $row['tube'],
-            'data' => unserialize($row['data']),
-            'delay' => $delay,
-            'priority' => $row['priority'],
-            'ttr' => $row['ttr'],
-        ];
+        return $jobs;
     }
 
     /**
@@ -100,6 +129,16 @@ class DbScheduler implements SchedulerInterface
         return (bool)$this->adapter
             ->query($sql, [$jobId])
             ->rowCount();
+    }
+
+    public function removeBatch(array $jobIds): bool
+    {
+        $table = $this->adapter->quote()->identifier('scheduled_queue');
+        $sql = "DELETE FROM {$table} WHERE id IN ( " . implode(',', array_fill(0, count($jobIds), '?')) . ' )';
+
+        return $this->adapter
+            ->query($sql, $jobIds)
+            ->rowCount() === count($jobIds);
     }
 
     protected function insert(array $data): int

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Phlib\JobQueue\Console;
 
 use Phlib\ConsoleProcess\Command\DaemonCommand;
+use Phlib\JobQueue\BatchableJobQueueInterface;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\JobInterface;
 use Phlib\JobQueue\JobQueueInterface;
+use Phlib\JobQueue\Scheduler\BatchableSchedulerInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -50,10 +52,22 @@ class MonitorCommand extends DaemonCommand
             $this->logFile = $logFile;
         }
 
-        while ($jobData = $this->scheduler->retrieve()) {
-            $output->writeln("Job {$jobData['id']} added.");
-            $this->jobQueue->put($this->createJob($jobData));
-            $this->scheduler->remove($jobData['id']);
+        if ($this->scheduler instanceof BatchableSchedulerInterface) {
+            while ($jobsData = $this->scheduler->retrieveBatch()) {
+                $jobs = [];
+                foreach ($jobsData as $jobData) {
+                    $output->writeln("Job {$jobData['id']} added.");
+                    $jobs[] = $this->createJob($jobData);
+                }
+                $this->putJobBatch($jobs);
+                $this->scheduler->removeBatch(array_column($jobsData, 'id'));
+            }
+        } else {
+            while ($jobData = $this->scheduler->retrieve()) {
+                $output->writeln("Job {$jobData['id']} added.");
+                $this->jobQueue->put($this->createJob($jobData));
+                $this->scheduler->remove($jobData['id']);
+            }
         }
 
         return 0;
@@ -69,6 +83,18 @@ class MonitorCommand extends DaemonCommand
             $schedulerJob['priority'],
             $schedulerJob['ttr']
         );
+    }
+
+    protected function putJobBatch(array $jobs): void
+    {
+        if ($this->jobQueue instanceof BatchableJobQueueInterface) {
+            $this->jobQueue->putBatch($jobs);
+            return;
+        }
+
+        foreach ($jobs as $job) {
+            $this->jobQueue->put($job);
+        }
     }
 
     protected function createChildOutput(): OutputInterface

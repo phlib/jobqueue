@@ -5,6 +5,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added `BatchableJobQueueInterface` which defines a JobQueue capable of putting jobs to a queue in batches.
+  - Extends `JobQueueInterface`.
+  - Adds `putBatch()` method, which accepts an array of `JobInterface` and returns `self`.
+- Added `BatchableSchedulerInterface` which defines a scheduler capable of retrieving and removing jobs in batches.
+  - Extends `SchedulerInterface`.
+  - Adds `retrieveBatch()` which will return a array of jobs or `false` if there are no jobs.
+  - Adds `removeBatch()` which accepts an array of job ids and returns a bool to indicate success.
+### Changed
+- `Phlib\JobQueue\AwsSqs\JobQueue` supports batching and implements `BatchableJobQueueInterface`.
+- `Phlib\JobQueue\Scheduler\DbScheduler` supports batching and implements `BatchableSchedulerInterface`.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `batchSize` argument to specify how many jobs should be fetched per query.
+  This defaults to `50` if not provided.
+- `MonitorCommand` will fetch jobs in batches if the scheduler implements `BatchableSchedulerInterface`.
+- `MonitorCommand` will put jobs in batches if the JobQueue implements `BatchableJobQueueInterface` and the scheduler support batching.
 
 ## [2.0.0] - 2022-09-14
 ### Added
