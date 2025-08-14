@@ -6,6 +6,7 @@ namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Db\Adapter;
 use Phlib\JobQueue\JobInterface;
+use STS\Backoff\Backoff;
 
 /**
  * Class DbScheduler
@@ -24,19 +25,49 @@ class DbScheduler implements BatchableSchedulerInterface
 
     private int $batchSize;
 
+    private ?Backoff $backoff;
+
+    private const MYSQL_SERIALIZATION_FAILURE = '40001';
+
+    private const MYSQL_DEADLOCK = '1213';
+
     /**
      * @param integer $maximumDelay
      * @param integer $minimumPickup
      * @param boolean $skipLocked
      * @param integer $batchSize
+     * @param ?Backoff $backoff
      */
-    public function __construct(Adapter $adapter, $maximumDelay = 300, $minimumPickup = 600, $skipLocked = false, $batchSize = 50)
-    {
+    public function __construct(
+        Adapter $adapter,
+        $maximumDelay = 300,
+        $minimumPickup = 600,
+        $skipLocked = false,
+        $batchSize = 50,
+        $backoff = null
+    ) {
         $this->adapter = $adapter;
         $this->maximumDelay = $maximumDelay;
         $this->minimumPickup = $minimumPickup;
         $this->skipLocked = $skipLocked;
         $this->batchSize = $batchSize;
+        $this->backoff = $backoff;
+
+        if ($this->backoff) {
+            $this->backoff->setDecider(
+                function (int $attempt, int $maxAttempts, $result, ?\Throwable $e = null) {
+                    if ($e === null) {
+                        return false;
+                    }
+
+                    if ($e instanceof \PDOException && $this->isDeadlock($e) && $attempt < $maxAttempts) {
+                        return true;
+                    }
+
+                    throw $e;
+                }
+            );
+        }
     }
 
     public function shouldBeScheduled($delay): bool
@@ -62,7 +93,7 @@ class DbScheduler implements BatchableSchedulerInterface
      */
     public function retrieve()
     {
-        $job = $this->queryJobs(1);
+        $job = $this->queryJobsWithRetry(1);
         return $job ? $job[0] : false;
     }
 
@@ -71,7 +102,36 @@ class DbScheduler implements BatchableSchedulerInterface
      */
     public function retrieveBatch()
     {
-        return $this->queryJobs($this->batchSize);
+        return $this->queryJobsWithRetry($this->batchSize);
+    }
+
+    private function isDeadlock(\PDOException $exception): bool
+    {
+        $regex = '/SQLSTATE\[' . self::MYSQL_SERIALIZATION_FAILURE . '\].*\s' . self::MYSQL_DEADLOCK . '\s/';
+
+        return (string) $exception->getCode() === self::MYSQL_SERIALIZATION_FAILURE
+            && preg_match($regex, $exception->getMessage());
+    }
+
+    /**
+     * @return array|false
+     */
+    private function queryJobsWithRetry(int $batchSize)
+    {
+        if ($this->backoff) {
+            return $this->backoff->run(function () use ($batchSize) {
+                try {
+                    return $this->queryJobs($batchSize);
+                } catch (\PDOException $e) {
+                    if ($this->adapter->getConnection()->inTransaction()) {
+                        $this->adapter->rollBack();
+                    }
+                    throw $e;
+                }
+            });
+        }
+
+        return $this->queryJobs($batchSize);
     }
 
     /**

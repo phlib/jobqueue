@@ -29,7 +29,7 @@ Bootstrap
 $beanstalk = (new \Phlib\Beanstalk\Factory())->create('localhost');
 $db        = new \Phlib\Db\Adapter(['host' => '127.0.0.1', 'dbname' => 'example']);
 
-$scheduler = new \Phlib\JobQueue\DbScheduler($db, 300, 600);
+$scheduler = new \Phlib\JobQueue\Scheduler\DbScheduler($db, 300, 600, true);
 $jobQueue  = new \Phlib\JobQueue\Beanstalk\Scheduled($beanstalk, $scheduler);
 ```
 
@@ -50,6 +50,8 @@ do {
     usleep(500);
 } while (true);
 ```
+
+See [examples](example/) for more advance usage.
 
 ## Jobqueue Script
 

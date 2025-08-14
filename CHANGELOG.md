@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   This defaults to `false` if not provided and should only be enabled if you are running MySQL 8.0.1 or higher.
 - `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `batchSize` argument to specify how many jobs should be fetched per query.
   This defaults to `50` if not provided.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `backoff` argument which should be a `STS\Backoff\Backoff` object used to retry if a deadlock occurs.
+  This defaults to `null` and no retry will be attempted if not provided.
 - `MonitorCommand` will fetch jobs in batches if the scheduler implements `BatchableSchedulerInterface`.
 - `MonitorCommand` will put jobs in batches if the JobQueue implements `BatchableJobQueueInterface` and the scheduler support batching.
 
