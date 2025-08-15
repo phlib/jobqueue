@@ -16,8 +16,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - `Phlib\JobQueue\AwsSqs\JobQueue` supports batching and implements `BatchableJobQueueInterface`.
 - `Phlib\JobQueue\Scheduler\DbScheduler` supports batching and implements `BatchableSchedulerInterface`.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `skipLocked` argument to indicate whether locked rows should be skipped when claiming jobs.  Enabling this will reduce the risk of deadlocks occurring when running multiple instances of the monitor.
+  This defaults to `false` if not provided and should only be enabled if you are running MySQL 8.0.1 or higher.
 - `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `batchSize` argument to specify how many jobs should be fetched per query.
   This defaults to `50` if not provided.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `backoff` argument which should be a `STS\Backoff\Backoff` object used to retry if a deadlock occurs.
+  This defaults to `null` and no retry will be attempted if not provided.
 - `MonitorCommand` will fetch jobs in batches if the scheduler implements `BatchableSchedulerInterface`.
 - `MonitorCommand` will put jobs in batches if the JobQueue implements `BatchableJobQueueInterface` and the scheduler support batching.
 

@@ -29,7 +29,8 @@ Bootstrap
 $beanstalk = (new \Phlib\Beanstalk\Factory())->create('localhost');
 $db        = new \Phlib\Db\Adapter(['host' => '127.0.0.1', 'dbname' => 'example']);
 
-$scheduler = new \Phlib\JobQueue\DbScheduler($db, 300, 600);
+$backoff   = new \STS\Backoff\Backoff(5, 'constant', 2000, true);
+$scheduler = new \Phlib\JobQueue\Scheduler\DbScheduler($db, 300, 600, true, 50, $backoff);
 $jobQueue  = new \Phlib\JobQueue\Beanstalk\Scheduled($beanstalk, $scheduler);
 ```
 
