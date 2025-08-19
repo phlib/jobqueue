@@ -6,6 +6,7 @@ namespace Phlib\JobQueue\Scheduler;
 
 use Phlib\Db\Adapter;
 use Phlib\JobQueue\JobInterface;
+use STS\Backoff\Backoff;
 
 /**
  * Class DbScheduler
@@ -20,19 +21,53 @@ class DbScheduler implements BatchableSchedulerInterface
 
     private int $minimumPickup;
 
+    private bool $skipLocked;
+
     private int $batchSize;
+
+    private ?Backoff $backoff;
+
+    private const MYSQL_SERIALIZATION_FAILURE = '40001';
+
+    private const MYSQL_DEADLOCK = '1213';
 
     /**
      * @param integer $maximumDelay
      * @param integer $minimumPickup
+     * @param boolean $skipLocked
      * @param integer $batchSize
+     * @param ?Backoff $backoff
      */
-    public function __construct(Adapter $adapter, $maximumDelay = 300, $minimumPickup = 600, $batchSize = 50)
-    {
+    public function __construct(
+        Adapter $adapter,
+        $maximumDelay = 300,
+        $minimumPickup = 600,
+        $skipLocked = false,
+        $batchSize = 50,
+        $backoff = null
+    ) {
         $this->adapter = $adapter;
         $this->maximumDelay = $maximumDelay;
         $this->minimumPickup = $minimumPickup;
+        $this->skipLocked = $skipLocked;
         $this->batchSize = $batchSize;
+        $this->backoff = $backoff;
+
+        if ($this->backoff) {
+            $this->backoff->setDecider(
+                function (int $attempt, int $maxAttempts, $result, ?\Throwable $e = null) {
+                    if ($e === null) {
+                        return false;
+                    }
+
+                    if ($e instanceof \PDOException && $this->isDeadlock($e) && $attempt < $maxAttempts) {
+                        return true;
+                    }
+
+                    throw $e;
+                }
+            );
+        }
     }
 
     public function shouldBeScheduled($delay): bool
@@ -58,7 +93,7 @@ class DbScheduler implements BatchableSchedulerInterface
      */
     public function retrieve()
     {
-        $job = $this->queryJobs(1);
+        $job = $this->queryJobsWithRetry(1);
         return $job ? $job[0] : false;
     }
 
@@ -67,7 +102,36 @@ class DbScheduler implements BatchableSchedulerInterface
      */
     public function retrieveBatch()
     {
-        return $this->queryJobs($this->batchSize);
+        return $this->queryJobsWithRetry($this->batchSize);
+    }
+
+    private function isDeadlock(\PDOException $exception): bool
+    {
+        $regex = '/SQLSTATE\[' . self::MYSQL_SERIALIZATION_FAILURE . '\].*\s' . self::MYSQL_DEADLOCK . '\s/';
+
+        return (string) $exception->getCode() === self::MYSQL_SERIALIZATION_FAILURE
+            && preg_match($regex, $exception->getMessage());
+    }
+
+    /**
+     * @return array|false
+     */
+    private function queryJobsWithRetry(int $batchSize)
+    {
+        if ($this->backoff) {
+            return $this->backoff->run(function () use ($batchSize) {
+                try {
+                    return $this->queryJobs($batchSize);
+                } catch (\PDOException $e) {
+                    if ($this->adapter->getConnection()->inTransaction()) {
+                        $this->adapter->rollBack();
+                    }
+                    throw $e;
+                }
+            });
+        }
+
+        return $this->queryJobs($batchSize);
     }
 
     /**
@@ -75,26 +139,47 @@ class DbScheduler implements BatchableSchedulerInterface
      */
     private function queryJobs(int $batchSize)
     {
-        $sql = "
-            UPDATE scheduled_queue SET
-                picked_by = CONNECTION_ID(),
-                picked_ts = NOW()
+        $this->adapter->beginTransaction();
+
+        $sql = <<<SQL
+            SELECT * FROM scheduled_queue
             WHERE
                 scheduled_ts <= CURRENT_TIMESTAMP + INTERVAL :minimumPickup SECOND AND
                 picked_by IS NULL
             ORDER BY
                 scheduled_ts DESC
-            LIMIT {$batchSize}";
+            LIMIT {$batchSize}
+            FOR UPDATE
+            SQL;
+
+        if ($this->skipLocked) {
+            $sql .= ' SKIP LOCKED';
+        }
+
         $stmt = $this->adapter->query($sql, [
             ':minimumPickup' => $this->minimumPickup,
         ]);
 
-        if ($stmt->rowCount() === 0) {
+        $rowCount = $stmt->rowCount();
+
+        if ($rowCount === 0) {
+            $this->adapter->rollBack();
             return false; // no jobs
         }
 
-        $sql = "SELECT * FROM `scheduled_queue` WHERE picked_by = CONNECTION_ID() LIMIT {$batchSize}";
-        $rows = $this->adapter->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $placeholders = implode(',', array_fill(0, $rowCount, '?'));
+        $sql = <<<SQL
+            UPDATE scheduled_queue SET
+                picked_by = CONNECTION_ID(),
+                picked_ts = NOW()
+            WHERE id IN ( {$placeholders} )
+        SQL;
+
+        $this->adapter->query($sql, array_column($rows, 'id'));
+
+        $this->adapter->commit();
 
         $jobs = [];
 
