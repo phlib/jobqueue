@@ -6,17 +6,17 @@ namespace Phlib\JobQueue\AwsSqs;
 
 use Aws\Sqs\Exception\SqsException;
 use Aws\Sqs\SqsClient;
+use Phlib\JobQueue\BatchableJobQueueInterface;
 use Phlib\JobQueue\Exception\InvalidArgumentException;
 use Phlib\JobQueue\Exception\RuntimeException;
 use Phlib\JobQueue\Job;
 use Phlib\JobQueue\JobInterface;
-use Phlib\JobQueue\JobQueueInterface;
 use Phlib\JobQueue\Scheduler\SchedulerInterface;
 
 /**
  * @package Phlib\JobQueue
  */
-class JobQueue implements JobQueueInterface
+class JobQueue implements BatchableJobQueueInterface
 {
     private int $retrieveTimeout = 10;
 
@@ -53,6 +53,39 @@ class JobQueue implements JobQueueInterface
                 'DelaySeconds' => $job->getDelay(),
                 'MessageBody' => JobFactory::serializeBody($job),
             ]);
+            return $this;
+        } catch (SqsException $exception) {
+            throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
+        }
+    }
+
+    public function putBatch(array $jobs): self
+    {
+        try {
+            $queues = [];
+
+            foreach ($jobs as $key => $job) {
+                if ($this->scheduler->shouldBeScheduled($job->getDelay())) {
+                    $this->scheduler->store($job);
+                    continue;
+                }
+
+                $queues[$job->getQueue()][] = [
+                    'Id' => (string)$key,
+                    'DelaySeconds' => $job->getDelay(),
+                    'MessageBody' => JobFactory::serializeBody($job),
+                ];
+            }
+
+            foreach ($queues as $queue => $jobs) {
+                foreach (array_chunk($jobs, 10) as $batch) {
+                    $this->client->sendMessageBatch([
+                        'QueueUrl' => $this->getQueueUrlWithPrefix($queue),
+                        'Entries' => $batch,
+                    ]);
+                }
+            }
+
             return $this;
         } catch (SqsException $exception) {
             throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);

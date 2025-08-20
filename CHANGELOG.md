@@ -5,6 +5,25 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added `BatchableJobQueueInterface` which defines a JobQueue capable of putting jobs to a queue in batches.
+  - Extends `JobQueueInterface`.
+  - Adds `putBatch()` method, which accepts an array of `JobInterface` and returns `self`.
+- Added `BatchableSchedulerInterface` which defines a scheduler capable of retrieving and removing jobs in batches.
+  - Extends `SchedulerInterface`.
+  - Adds `retrieveBatch()` which will return a array of jobs or `false` if there are no jobs.
+  - Adds `removeBatch()` which accepts an array of job ids and returns a bool to indicate success.
+### Changed
+- `Phlib\JobQueue\AwsSqs\JobQueue` supports batching and implements `BatchableJobQueueInterface`.
+- `Phlib\JobQueue\Scheduler\DbScheduler` supports batching and implements `BatchableSchedulerInterface`.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `skipLocked` argument to indicate whether locked rows should be skipped when claiming jobs.  Enabling this will reduce the risk of deadlocks occurring when running multiple instances of the monitor.
+  This defaults to `false` if not provided and should only be enabled if you are running MySQL 8.0.1 or higher.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `batchSize` argument to specify how many jobs should be fetched per query.
+  This defaults to `50` if not provided.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `backoff` argument which should be a `STS\Backoff\Backoff` object used to retry if a deadlock occurs.
+  This defaults to `null` and no retry will be attempted if not provided.
+- `MonitorCommand` will fetch jobs in batches if the scheduler implements `BatchableSchedulerInterface`.
+- `MonitorCommand` will put jobs in batches if the JobQueue implements `BatchableJobQueueInterface` and the scheduler support batching.
 
 ## [3.0.3] - 2025-07-31
 ### Fixed
@@ -27,6 +46,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - **BC break**: Removed support for PHP versions <= v8.0 as they are no longer
   [actively supported](https://php.net/supported-versions.php) by the PHP project.
+
+## [2.1.0] - 2025-08-19
+### Added
+- Added `BatchableJobQueueInterface` which defines a JobQueue capable of putting jobs to a queue in batches.
+  - Extends `JobQueueInterface`.
+  - Adds `putBatch()` method, which accepts an array of `JobInterface` and returns `self`.
+- Added `BatchableSchedulerInterface` which defines a scheduler capable of retrieving and removing jobs in batches.
+  - Extends `SchedulerInterface`.
+  - Adds `retrieveBatch()` which will return a array of jobs or `false` if there are no jobs.
+  - Adds `removeBatch()` which accepts an array of job ids and returns a bool to indicate success.
+### Changed
+- `Phlib\JobQueue\AwsSqs\JobQueue` supports batching and implements `BatchableJobQueueInterface`.
+- `Phlib\JobQueue\Scheduler\DbScheduler` supports batching and implements `BatchableSchedulerInterface`.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `skipLocked` argument to indicate whether locked rows should be skipped when claiming jobs.  Enabling this will reduce the risk of deadlocks occurring when running multiple instances of the monitor.
+  This defaults to `false` if not provided and should only be enabled if you are running MySQL 8.0.1 or higher.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `batchSize` argument to specify how many jobs should be fetched per query.
+  This defaults to `50` if not provided.
+- `Phlib\JobQueue\Scheduler\DbScheduler` optionally accepts a `backoff` argument which should be a `STS\Backoff\Backoff` object used to retry if a deadlock occurs.
+  This defaults to `null` and no retry will be attempted if not provided.
+- `MonitorCommand` will fetch jobs in batches if the scheduler implements `BatchableSchedulerInterface`.
+- `MonitorCommand` will put jobs in batches if the JobQueue implements `BatchableJobQueueInterface` and the scheduler support batching.
 
 ## [2.0.0] - 2022-09-14
 ### Added
