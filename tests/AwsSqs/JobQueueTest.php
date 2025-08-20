@@ -158,7 +158,7 @@ class JobQueueTest extends TestCase
                         'delay' => 0,
                         'priority' => 1024,
                         'ttr' => 60,
-                    ]
+                    ],
                 ),
             ],
             [
@@ -173,7 +173,7 @@ class JobQueueTest extends TestCase
                         'delay' => 5,
                         'priority' => 512,
                         'ttr' => 30,
-                    ]
+                    ],
                 ),
             ],
         ];
@@ -182,7 +182,7 @@ class JobQueueTest extends TestCase
             [
                 'QueueUrl' => $queueUrl,
                 'Entries' => $expectedEntries,
-            ]
+            ],
         )->shouldBeCalledOnce();
 
         $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix);
@@ -240,7 +240,7 @@ class JobQueueTest extends TestCase
                         'delay' => 0,
                         'priority' => 1024,
                         'ttr' => 60,
-                    ]
+                    ],
                 ),
             ],
             [
@@ -255,7 +255,7 @@ class JobQueueTest extends TestCase
                         'delay' => 0,
                         'priority' => 1024,
                         'ttr' => 60,
-                    ]
+                    ],
                 ),
             ],
         ];
@@ -273,7 +273,7 @@ class JobQueueTest extends TestCase
                         'delay' => 0,
                         'priority' => 1024,
                         'ttr' => 60,
-                    ]
+                    ],
                 ),
             ],
         ];
@@ -282,14 +282,14 @@ class JobQueueTest extends TestCase
             [
                 'QueueUrl' => $queueUrl1,
                 'Entries' => $expectedEntries1,
-            ]
+            ],
         )->shouldBeCalledOnce();
 
         $sqsClient->sendMessageBatch(
             [
                 'QueueUrl' => $queueUrl2,
                 'Entries' => $expectedEntries2,
-            ]
+            ],
         )->shouldBeCalledOnce();
 
         $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix);
@@ -325,7 +325,7 @@ class JobQueueTest extends TestCase
                         return false;
                     }
                     throw new \InvalidArgumentException("Unexpected delay: {$delay}");
-                }
+                },
             );
 
         $scheduler->expects($this->once())
@@ -351,7 +351,7 @@ class JobQueueTest extends TestCase
                         'delay' => 0,
                         'priority' => 1024,
                         'ttr' => 60,
-                    ]
+                    ],
                 ),
             ],
         ];
@@ -360,7 +360,7 @@ class JobQueueTest extends TestCase
             [
                 'QueueUrl' => $queueUrl,
                 'Entries' => $expectedEntries,
-            ]
+            ],
         )
             ->shouldBeCalledOnce();
 
@@ -400,8 +400,8 @@ class JobQueueTest extends TestCase
                     return $args['QueueUrl'] === $queueUrl &&
                        is_array($args['Entries']) &&
                        count($args['Entries']) === 10;
-                }
-            )
+                },
+            ),
         )
             ->shouldBeCalledTimes(2);
 
@@ -411,8 +411,8 @@ class JobQueueTest extends TestCase
                     return $args['QueueUrl'] === $queueUrl &&
                        is_array($args['Entries']) &&
                        count($args['Entries']) === 5;
-                }
-            )
+                },
+            ),
         )
             ->shouldBeCalledOnce();
 
@@ -447,7 +447,7 @@ class JobQueueTest extends TestCase
                         return true;
                     }
                     throw new \InvalidArgumentException('Unexpected job');
-                }
+                },
             );
 
         $sqsClient->getQueueUrl()->shouldNotBeCalled();

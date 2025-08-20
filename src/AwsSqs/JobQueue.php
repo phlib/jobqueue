@@ -71,7 +71,7 @@ class JobQueue implements BatchableJobQueueInterface
                 }
 
                 $queues[$job->getQueue()][] = [
-                    'Id' => (string) $key,
+                    'Id' => (string)$key,
                     'DelaySeconds' => $job->getDelay(),
                     'MessageBody' => JobFactory::serializeBody($job),
                 ];

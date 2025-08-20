@@ -243,7 +243,7 @@ class DbSchedulerTest extends TestCase
             ->method('query')
             ->with(
                 'DELETE FROM `scheduled_queue` WHERE id IN ( ? )',
-                [123]
+                [123],
             )
             ->willReturn($pdoStatement);
 
@@ -267,7 +267,7 @@ class DbSchedulerTest extends TestCase
             ->method('query')
             ->with(
                 'DELETE FROM `scheduled_queue` WHERE id IN ( ?,?,? )',
-                [123, 456, 789]
+                [123, 456, 789],
             )
             ->willReturn($pdoStatement);
 
@@ -310,7 +310,7 @@ class DbSchedulerTest extends TestCase
 
         $deadlockException = new \PDOException(
             'SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction',
-            40001
+            40001,
         );
 
         $selectStmt = $this->createMock(\PDOStatement::class);
@@ -345,7 +345,7 @@ class DbSchedulerTest extends TestCase
     {
         $deadlockException = new \PDOException(
             'SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction',
-            40001
+            40001,
         );
 
         $this->adapter->expects(static::exactly(5))
@@ -356,7 +356,7 @@ class DbSchedulerTest extends TestCase
 
         $this->expectException(\PDOException::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction'
+            'SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction',
         );
 
         $scheduler->retrieve();
@@ -402,7 +402,7 @@ class DbSchedulerTest extends TestCase
 
         $deadlockException = new \PDOException(
             'SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction',
-            40001
+            40001,
         );
 
         $selectStmt = $this->createMock(\PDOStatement::class);
@@ -439,7 +439,7 @@ class DbSchedulerTest extends TestCase
     {
         $deadlockException = new \PDOException(
             'SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction',
-            40001
+            40001,
         );
 
         $connection = $this->createMock(\PDO::class);

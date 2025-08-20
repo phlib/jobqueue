@@ -23,7 +23,7 @@ class DbScheduler implements BatchableSchedulerInterface
         private readonly int $minimumPickup = 600,
         private readonly bool $skipLocked = false,
         private readonly int $batchSize = 50,
-        private ?Backoff $backoff = null
+        private ?Backoff $backoff = null,
     ) {
         if ($this->backoff) {
             $this->backoff->setDecider(
@@ -37,7 +37,7 @@ class DbScheduler implements BatchableSchedulerInterface
                     }
 
                     throw $e;
-                }
+                },
             );
         }
     }
@@ -50,7 +50,7 @@ class DbScheduler implements BatchableSchedulerInterface
     public function store(JobInterface $job): bool
     {
         $dbTimestampFormat = 'Y-m-d H:i:s';
-        return (bool) $this->insert([
+        return (bool)$this->insert([
             'tube' => $job->getQueue(),
             'data' => serialize($job->getBody()),
             'scheduled_ts' => $job->getDatetimeDelay()->format($dbTimestampFormat),
@@ -66,10 +66,7 @@ class DbScheduler implements BatchableSchedulerInterface
         return $job ? $job[0] : false;
     }
 
-    /**
-     * @return array|false
-     */
-    public function retrieveBatch()
+    public function retrieveBatch(): array|false
     {
         return $this->queryJobsWithRetry($this->batchSize);
     }
@@ -78,14 +75,11 @@ class DbScheduler implements BatchableSchedulerInterface
     {
         $regex = '/SQLSTATE\[' . self::MYSQL_SERIALIZATION_FAILURE . '\].*\s' . self::MYSQL_DEADLOCK . '\s/';
 
-        return (string) $exception->getCode() === self::MYSQL_SERIALIZATION_FAILURE
+        return (string)$exception->getCode() === self::MYSQL_SERIALIZATION_FAILURE
             && preg_match($regex, $exception->getMessage());
     }
 
-    /**
-     * @return array|false
-     */
-    private function queryJobsWithRetry(int $batchSize)
+    private function queryJobsWithRetry(int $batchSize): array|false
     {
         if ($this->backoff) {
             return $this->backoff->run(function () use ($batchSize) {
@@ -103,10 +97,7 @@ class DbScheduler implements BatchableSchedulerInterface
         return $this->queryJobs($batchSize);
     }
 
-    /**
-     * @return array|false
-     */
-    private function queryJobs(int $batchSize)
+    private function queryJobs(int $batchSize): array|false
     {
         $this->adapter->beginTransaction();
 
@@ -160,12 +151,12 @@ class DbScheduler implements BatchableSchedulerInterface
             }
 
             $jobs[] = [
-                'id' => (int) $row['id'],
+                'id' => (int)$row['id'],
                 'queue' => $row['tube'],
                 'data' => unserialize($row['data']),
                 'delay' => $delay,
-                'priority' => (int) $row['priority'],
-                'ttr' => (int) $row['ttr'],
+                'priority' => (int)$row['priority'],
+                'ttr' => (int)$row['ttr'],
             ];
         }
 
@@ -177,7 +168,7 @@ class DbScheduler implements BatchableSchedulerInterface
         $table = $this->adapter->quote()->identifier('scheduled_queue');
         $sql = "DELETE FROM {$table} WHERE id = ?";
 
-        return (bool) $this->adapter
+        return (bool)$this->adapter
             ->query($sql, [$jobId])
             ->rowCount();
     }
