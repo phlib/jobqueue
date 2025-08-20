@@ -23,7 +23,8 @@
         "phlib/console-process": "^3 || ^4",
 
         "psr/log": "^1 || ^2 || ^3",
-        "aws/aws-sdk-php": "^3.61"
+        "aws/aws-sdk-php": "^3.61",
+        "stechstudio/backoff": "^1.6"
     },
     "require-dev": {
         "symplify/easy-coding-standard": "^12",
