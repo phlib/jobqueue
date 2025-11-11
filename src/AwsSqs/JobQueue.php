@@ -26,6 +26,7 @@ class JobQueue implements BatchableJobQueueInterface
         private readonly SqsClient $client,
         private readonly SchedulerInterface $scheduler,
         private string $queuePrefix = '',
+        private ?string $groupKey = null,
     ) {
     }
 
@@ -48,11 +49,13 @@ class JobQueue implements BatchableJobQueueInterface
                 return $this;
             }
 
-            $this->client->sendMessage([
+            $message = $this->getMessageWithGroupId($job, [
                 'QueueUrl' => $this->getQueueUrlWithPrefix($job->getQueue()),
                 'DelaySeconds' => $job->getDelay(),
                 'MessageBody' => JobFactory::serializeBody($job),
             ]);
+
+            $this->client->sendMessage($message);
             return $this;
         } catch (SqsException $exception) {
             throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
@@ -70,11 +73,11 @@ class JobQueue implements BatchableJobQueueInterface
                     continue;
                 }
 
-                $queues[$job->getQueue()][] = [
+                $queues[$job->getQueue()][] = $this->getMessageWithGroupId($job, [
                     'Id' => (string)$key,
                     'DelaySeconds' => $job->getDelay(),
                     'MessageBody' => JobFactory::serializeBody($job),
-                ];
+                ]);
             }
 
             foreach ($queues as $queue => $jobs) {
@@ -198,5 +201,28 @@ class JobQueue implements BatchableJobQueueInterface
         } catch (SqsException) {
             throw new RuntimeException("Specified queue '{$name}' does not have a Redrive Policy");
         }
+    }
+
+    private function getMessageWithGroupId(JobInterface $job, array $message): array
+    {
+        if (!$this->groupKey) {
+            return $message;
+        }
+
+        $body = $job->getBody();
+
+        $groupId = null;
+
+        if (is_array($body) && isset($body[$this->groupKey])) {
+            $groupId = $body[$this->groupKey];
+        } elseif (is_object($body)) {
+            $groupId = $body->{$this->groupKey} ?? null;
+        }
+
+        if ($groupId !== null) {
+            $message['MessageGroupId'] = (string)$groupId;
+        }
+
+        return $message;
     }
 }

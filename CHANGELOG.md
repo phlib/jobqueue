@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.2.0] - 2025-11-11
+### Changed
+- `Phlib\JobQueue\AwsSqs\JobQueue` optionally accepts a `$groupKey` parameter to set `MessageGroupId` on the message
+
 ## [3.1.0] - 2025-08-20
 ### Added
 - Added `BatchableJobQueueInterface` which defines a JobQueue capable of putting jobs to a queue in batches.
@@ -48,6 +52,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - **BC break**: Removed support for PHP versions <= v8.0 as they are no longer
   [actively supported](https://php.net/supported-versions.php) by the PHP project.
+
+## [2.2.0] - 2025-11-11
+### Changed
+- `Phlib\JobQueue\AwsSqs\JobQueue` optionally accepts a `$groupKey` parameter to set `MessageGroupId` on the message
 
 ## [2.1.0] - 2025-08-19
 ### Added
