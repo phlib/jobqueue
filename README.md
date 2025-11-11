@@ -87,6 +87,18 @@ CREATE TABLE `scheduled_queue` (
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 ```
 
+## SQS Fair Queues
+JobQueue can automatically set `MessageGroupId` from a parameter on the job's body see [the AWS documentation](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-fair-queues.html) for more information.
+``` php 
+$client = new \Aws\Sqs\SqsClient(['region'  => 'eu-west-1', 'credentials' => ['key' => 'foo', 'secret' => 'bar']]);
+$db = new \Phlib\Db\Adapter(['host' => '127.0.0.1', 'dbname' => 'example']);
+$scheduler = new \Phlib\JobQueue\Scheduler\DbScheduler($db, 300, 600, true);
+
+$jobQueue = new \Phlib\JobQueue\AwsSqs\JobQueue($client, $scheduler, '', 'tenantId'); //tenantId from the job body will be used as the MessageGroupId
+$job = new \Phlib\JobQueue\Job('my-queue', ['foo' => 'bar', 'tenantId' => 'tenant-26']); //MessageGroupId will get set to 'tenant-26'
+$jobQueue->put($job);
+```
+
 ## License
 
 This package is free software: you can redistribute it and/or modify
