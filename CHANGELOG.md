@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [3.2.0] - 2025-11-11
 ### Changed
 - `Phlib\JobQueue\AwsSqs\JobQueue` optionally accepts a `$groupKey` parameter to set `MessageGroupId` on the message
 
