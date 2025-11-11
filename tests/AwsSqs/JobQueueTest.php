@@ -477,6 +477,464 @@ class JobQueueTest extends TestCase
         $this->assertSame($jobQueue, $result);
     }
 
+    public function testPutWithMessageGroupIdObjectProperty(): void
+    {
+        $sqsClient = $this->prophesize(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
+
+        $queuePrefix = 'prefix-';
+        $groupKey = 'userId';
+        $queue = 'test-queue';
+        $queueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/prefix-test-queue';
+
+        $scheduler->method('shouldBeScheduled')->willReturn(false);
+
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
+
+        $jobData = (object)[
+            'userId' => 'user123',
+            'action' => 'process',
+        ];
+        $job = new Job($queue, $jobData);
+
+        $expectedMessage = [
+            'QueueUrl' => $queueUrl,
+            'DelaySeconds' => 0,
+            'MessageBody' => json_encode([
+                'queue' => $queue,
+                'body' => $jobData,
+                'delay' => 0,
+                'priority' => 1024,
+                'ttr' => 60,
+            ]),
+            'MessageGroupId' => 'user123',
+        ];
+
+        $sqsClient->sendMessage($expectedMessage)->shouldBeCalledOnce();
+
+        $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix, $groupKey);
+        $result = $jobQueue->put($job);
+
+        $this->assertSame($jobQueue, $result);
+    }
+
+    public function testPutWithMessageGroupIdArrayProperty(): void
+    {
+        $sqsClient = $this->prophesize(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
+
+        $queuePrefix = 'prefix-';
+        $groupKey = 'tenantId';
+        $queue = 'test-queue';
+        $queueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/prefix-test-queue';
+
+        $scheduler->method('shouldBeScheduled')->willReturn(false);
+
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
+
+        $jobData = [
+            'tenantId' => 456,
+            'data' => 'process this',
+        ];
+        $job = new Job($queue, $jobData);
+
+        $expectedMessage = [
+            'QueueUrl' => $queueUrl,
+            'DelaySeconds' => 0,
+            'MessageBody' => json_encode([
+                'queue' => $queue,
+                'body' => $jobData,
+                'delay' => 0,
+                'priority' => 1024,
+                'ttr' => 60,
+            ]),
+            'MessageGroupId' => '456',
+        ];
+
+        $sqsClient->sendMessage($expectedMessage)->shouldBeCalledOnce();
+
+        $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix, $groupKey);
+        $result = $jobQueue->put($job);
+
+        $this->assertSame($jobQueue, $result);
+    }
+
+    public function testPutWithoutMessageGroupIdWhenGroupKeyMissing(): void
+    {
+        $sqsClient = $this->prophesize(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
+
+        $queuePrefix = 'prefix-';
+        $groupKey = 'missingKey';
+        $queue = 'test-queue';
+        $queueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/prefix-test-queue';
+
+        $scheduler->method('shouldBeScheduled')->willReturn(false);
+
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
+
+        $jobData = [
+            'userId' => 'user123',
+            'action' => 'process',
+        ];
+        $job = new Job($queue, $jobData);
+
+        $expectedMessage = [
+            'QueueUrl' => $queueUrl,
+            'DelaySeconds' => 0,
+            'MessageBody' => json_encode([
+                'queue' => $queue,
+                'body' => $jobData,
+                'delay' => 0,
+                'priority' => 1024,
+                'ttr' => 60,
+            ]),
+        ];
+
+        $sqsClient->sendMessage($expectedMessage)->shouldBeCalledOnce();
+
+        // groupKey is set but doesn't exist in job data, so no MessageGroupId should be set
+        $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix, $groupKey);
+        $result = $jobQueue->put($job);
+
+        $this->assertSame($jobQueue, $result);
+    }
+
+    public function testPutWithMessageGroupIdNullValue(): void
+    {
+        $sqsClient = $this->prophesize(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
+
+        $queuePrefix = 'prefix-';
+        $groupKey = 'userId';
+        $queue = 'test-queue';
+        $queueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/prefix-test-queue';
+
+        $scheduler->method('shouldBeScheduled')->willReturn(false);
+
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
+
+        $jobData = [
+            'userId' => null,
+            'action' => 'process',
+        ];
+        $job = new Job($queue, $jobData);
+
+        $expectedMessage = [
+            'QueueUrl' => $queueUrl,
+            'DelaySeconds' => 0,
+            'MessageBody' => json_encode([
+                'queue' => $queue,
+                'body' => $jobData,
+                'delay' => 0,
+                'priority' => 1024,
+                'ttr' => 60,
+            ]),
+        ];
+
+        $sqsClient->sendMessage($expectedMessage)->shouldBeCalledOnce();
+
+        // groupKey exists but value is null, so no MessageGroupId should be set
+        $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix, $groupKey);
+        $result = $jobQueue->put($job);
+
+        $this->assertSame($jobQueue, $result);
+    }
+
+    public function testPutBatchWithMessageGroupId(): void
+    {
+        $sqsClient = $this->prophesize(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
+
+        $queuePrefix = 'prefix-';
+        $groupKey = 'userId';
+        $queue = 'test-queue';
+        $queueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/prefix-test-queue';
+
+        $scheduler->method('shouldBeScheduled')->willReturn(false);
+
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
+
+        $job1 = new Job($queue, [
+            'userId' => 'user123',
+            'data' => 'test1',
+        ]);
+        $job2 = new Job($queue, (object)[
+            'userId' => 'user456',
+            'data' => 'test2',
+        ]);
+        $job3 = new Job($queue, [
+            'data' => 'test3',
+        ]); // No userId - should not have MessageGroupId
+        $job4 = new Job($queue, (object)[
+            'data' => 'test4',
+        ]); // No userId - should not have MessageGroupId
+        $jobs = [$job1, $job2, $job3, $job4];
+
+        $expectedEntries = [
+            [
+                'Id' => '0',
+                'DelaySeconds' => 0,
+                'MessageBody' => json_encode([
+                    'queue' => $queue,
+                    'body' => [
+                        'userId' => 'user123',
+                        'data' => 'test1',
+                    ],
+                    'delay' => 0,
+                    'priority' => 1024,
+                    'ttr' => 60,
+                ]),
+                'MessageGroupId' => 'user123',
+            ],
+            [
+                'Id' => '1',
+                'DelaySeconds' => 0,
+                'MessageBody' => json_encode([
+                    'queue' => $queue,
+                    'body' => (object)[
+                        'userId' => 'user456',
+                        'data' => 'test2',
+                    ],
+                    'delay' => 0,
+                    'priority' => 1024,
+                    'ttr' => 60,
+                ]),
+                'MessageGroupId' => 'user456',
+            ],
+            [
+                'Id' => '2',
+                'DelaySeconds' => 0,
+                'MessageBody' => json_encode([
+                    'queue' => $queue,
+                    'body' => [
+                        'data' => 'test3',
+                    ],
+                    'delay' => 0,
+                    'priority' => 1024,
+                    'ttr' => 60,
+                ]),
+                // No MessageGroupId for this entry
+            ],
+            [
+                'Id' => '3',
+                'DelaySeconds' => 0,
+                'MessageBody' => json_encode([
+                    'queue' => $queue,
+                    'body' => (object)[
+                        'data' => 'test4',
+                    ],
+                    'delay' => 0,
+                    'priority' => 1024,
+                    'ttr' => 60,
+                ]),
+                // No MessageGroupId for this entry
+            ],
+        ];
+
+        $sqsClient->sendMessageBatch([
+            'QueueUrl' => $queueUrl,
+            'Entries' => $expectedEntries,
+        ])->shouldBeCalledOnce();
+
+        $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix, $groupKey);
+        $result = $jobQueue->putBatch($jobs);
+
+        $this->assertSame($jobQueue, $result);
+    }
+
+    public function testPutBatchWithMessageGroupIdMixedQueues(): void
+    {
+        $sqsClient = $this->prophesize(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
+
+        $queuePrefix = 'prefix-';
+        $groupKey = 'tenantId';
+        $queue1 = 'test-queue-1';
+        $queue2 = 'test-queue-2';
+        $queueUrl1 = 'https://sqs.us-east-1.amazonaws.com/123456789012/prefix-test-queue-1';
+        $queueUrl2 = 'https://sqs.us-east-1.amazonaws.com/123456789012/prefix-test-queue-2';
+
+        $scheduler->method('shouldBeScheduled')->willReturn(false);
+
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue1,
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl1]]));
+
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue2,
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl2]]));
+
+        $job1 = new Job($queue1, [
+            'tenantId' => 100,
+            'data' => 'test1',
+        ]);
+        $job2 = new Job($queue2, [
+            'tenantId' => 200,
+            'data' => 'test2',
+        ]);
+        $job3 = new Job($queue1, [
+            'tenantId' => 100,
+            'data' => 'test3',
+        ]);
+        $jobs = [$job1, $job2, $job3];
+
+        $expectedEntries1 = [
+            [
+                'Id' => '0',
+                'DelaySeconds' => 0,
+                'MessageBody' => json_encode([
+                    'queue' => $queue1,
+                    'body' => [
+                        'tenantId' => 100,
+                        'data' => 'test1',
+                    ],
+                    'delay' => 0,
+                    'priority' => 1024,
+                    'ttr' => 60,
+                ]),
+                'MessageGroupId' => '100',
+            ],
+            [
+                'Id' => '2',
+                'DelaySeconds' => 0,
+                'MessageBody' => json_encode([
+                    'queue' => $queue1,
+                    'body' => [
+                        'tenantId' => 100,
+                        'data' => 'test3',
+                    ],
+                    'delay' => 0,
+                    'priority' => 1024,
+                    'ttr' => 60,
+                ]),
+                'MessageGroupId' => '100',
+            ],
+        ];
+
+        $expectedEntries2 = [
+            [
+                'Id' => '1',
+                'DelaySeconds' => 0,
+                'MessageBody' => json_encode([
+                    'queue' => $queue2,
+                    'body' => [
+                        'tenantId' => 200,
+                        'data' => 'test2',
+                    ],
+                    'delay' => 0,
+                    'priority' => 1024,
+                    'ttr' => 60,
+                ]),
+                'MessageGroupId' => '200',
+            ],
+        ];
+
+        $sqsClient->sendMessageBatch([
+            'QueueUrl' => $queueUrl1,
+            'Entries' => $expectedEntries1,
+        ])->shouldBeCalledOnce();
+
+        $sqsClient->sendMessageBatch([
+            'QueueUrl' => $queueUrl2,
+            'Entries' => $expectedEntries2,
+        ])->shouldBeCalledOnce();
+
+        $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix, $groupKey);
+        $result = $jobQueue->putBatch($jobs);
+
+        $this->assertSame($jobQueue, $result);
+    }
+
+    public function testPutBatchWithMessageGroupIdScheduledJobs(): void
+    {
+        $sqsClient = $this->prophesize(SqsClient::class);
+        $scheduler = $this->createMock(SchedulerInterface::class);
+
+        $queuePrefix = 'prefix-';
+        $groupKey = 'userId';
+        $queue = 'test-queue';
+        $queueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/prefix-test-queue';
+
+        $job1 = new Job($queue, [
+            'userId' => 'user123',
+            'data' => 'test1',
+        ], null, 300);
+        $job2 = new Job($queue, [
+            'userId' => 'user456',
+            'data' => 'test2',
+        ], null, 0);
+        $jobs = [$job1, $job2];
+
+        $scheduler->expects($this->exactly(2))
+            ->method('shouldBeScheduled')
+            ->willReturnCallback(function ($delay) {
+                return $delay === 300;
+            });
+
+        $scheduler->expects($this->once())
+            ->method('store')
+            ->with($job1);
+
+        $sqsClient->getQueueUrl([
+            'QueueName' => $queuePrefix . $queue,
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($this->mockAwsResult([['QueueUrl', $queueUrl]]));
+
+        $expectedEntries = [
+            [
+                'Id' => '1',
+                'DelaySeconds' => 0,
+                'MessageBody' => json_encode([
+                    'queue' => $queue,
+                    'body' => [
+                        'userId' => 'user456',
+                        'data' => 'test2',
+                    ],
+                    'delay' => 0,
+                    'priority' => 1024,
+                    'ttr' => 60,
+                ]),
+                'MessageGroupId' => 'user456',
+            ],
+        ];
+
+        $sqsClient->sendMessageBatch([
+            'QueueUrl' => $queueUrl,
+            'Entries' => $expectedEntries,
+        ])->shouldBeCalledOnce();
+
+        $jobQueue = new JobQueue($sqsClient->reveal(), $scheduler, $queuePrefix, $groupKey);
+        $result = $jobQueue->putBatch($jobs);
+
+        $this->assertSame($jobQueue, $result);
+    }
+
     private function mockAwsResult(array $valueMap): MockObject
     {
         $result = $this->createMock(Result::class);
