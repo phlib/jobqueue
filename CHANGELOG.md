@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- Fix `Phlib\JobQueue\AwsSqs\JobQueue` throwing an exception when `JobQueue->retrieve()` is called on an empty queue and using an ElasticMQ server.
 
 ## [3.2.0] - 2025-11-11
 ### Changed

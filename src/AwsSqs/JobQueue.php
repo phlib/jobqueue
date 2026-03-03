@@ -104,7 +104,7 @@ class JobQueue implements BatchableJobQueueInterface
                 'MaxNumberOfMessages' => 1,
             ]);
 
-            if (!isset($result['Messages'])) {
+            if (empty($result['Messages'])) {
                 return null;
             }
 
