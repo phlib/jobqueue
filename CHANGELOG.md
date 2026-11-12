@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-11-12
+### Fixed
+- Fix `Phlib\JobQueue\Command\WorkerCommand` ignoring SIGTERM when the queue is busy.
+### Added
+- Added `emptyQueueDelay` property to `Phlib\JobQueue\Command\WorkerCommand` to set the time to wait if the queue is empty.
+### Removed
+- Removed the `queueContinue` property from `Phlib\JobQueue\Command\WorkerCommand`
+### Changed
+- The `proecessingDelay` property on `Phlib\JobQueue\Command\WorkerCommand` now controls the delay between jobs and rather than the time to wait if the queue is empty.
+
 ## [3.2.1] - 2026-03-03
 ### Fixed
 - Fix `Phlib\JobQueue\AwsSqs\JobQueue` throwing an exception when `JobQueue->retrieve()` is called on an empty queue and using an ElasticMQ server.
