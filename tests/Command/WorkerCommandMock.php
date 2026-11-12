@@ -28,7 +28,6 @@ class WorkerCommandMock extends WorkerCommand
     protected function work(JobInterface $job, InputInterface $input, OutputInterface $output): int
     {
         if ($this->runOnce) {
-            $this->queueContinue = false;
             $this->shutdown();
         }
         return 0;
