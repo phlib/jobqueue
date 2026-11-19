@@ -24,46 +24,65 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
+    /**
+     * Delay between processing jobs, in μs.
+     * Defaults to 0 to prevent a delay beween jobs.
+     * @see \Phlib\ConsoleProcess\Command\BackgroundCommand::$processingDelay
+     */
+    protected int $processingDelay = 0;
+
+    /**
+     * Delay between checking for jobs when the queue is empty, in μs.
+     */
+    protected int $emptyQueueDelay = 500000;
+
     protected string $queue;
 
     protected bool $exitOnException = false;
 
-    protected bool $queueContinue = true;
+    protected function initialize(InputInterface $input, OutputInterface $output): void
+    {
+        if (empty($this->queue)) {
+            throw new InvalidArgumentException("Missing required property 'queue' to be set on Worker Command.");
+        }
+
+        parent::initialize($input, $output);
+    }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->queue === null) {
-            throw new InvalidArgumentException("Missing require property 'queue' to be set on Worker Command.");
-        }
-
         $jobQueue = $this->getJobQueue();
         $logger = $this->getLogger($output);
+        $job = $this->retrieve($jobQueue, $logger);
 
-        while ($this->queueContinue && ($job = $this->retrieve($jobQueue, $logger)) instanceof JobInterface) {
-            try {
-                $logger->info("Retrieved job {$job->getId()} for {$this->queue}");
-                $workStarted = microtime(true);
-                $code = $this->work($job, $input, $output);
-                $timeTaken = microtime(true) - $workStarted;
+        if (!$job instanceof JobInterface) {
+            usleep($this->emptyQueueDelay);
+            return 0;
+        }
 
-                $debugCode = var_export($code, true);
-                $logger->debug("Work completed on job {$job->getId()} with return code '{$debugCode}' taking {$timeTaken}");
+        try {
+            $logger->info("Retrieved job {$job->getId()} for {$this->queue}");
+            $workStarted = microtime(true);
+            $code = $this->work($job, $input, $output);
+            $timeTaken = microtime(true) - $workStarted;
 
-                if ($code !== 0) {
-                    throw new LogicException("Non zero exit code {$code}.");
-                }
-                $jobQueue->markAsComplete($job);
-                $logger->info("Job {$job->getId()} completed");
-            } catch (LibraryException $e) {
-                $this->logException($logger, "JobQueue library exception occurred while working on job {$job->getId()}", $e, $job);
+            $debugCode = var_export($code, true);
+            $logger->debug("Work completed on job {$job->getId()} with return code '{$debugCode}' taking {$timeTaken}");
+
+            if ($code !== 0) {
+                throw new LogicException("Non zero exit code {$code}.");
+            }
+            $jobQueue->markAsComplete($job);
+            $logger->info("Job {$job->getId()} completed");
+        } catch (LibraryException $e) {
+            $this->logException($logger, "JobQueue library exception occurred while working on job {$job->getId()}", $e, $job);
+            throw $e;
+        } catch (\Exception $e) {
+            $jobQueue->markAsError($job);
+            $this->logException($logger, "Job {$job->getId()} marked as error", $e, $job);
+
+            if ($this->exitOnException) {
                 throw $e;
-            } catch (\Exception $e) {
-                $jobQueue->markAsError($job);
-                $this->logException($logger, "Job {$job->getId()} marked as error", $e, $job);
-
-                if ($this->exitOnException) {
-                    throw $e;
-                }
             }
         }
 
@@ -76,7 +95,6 @@ class WorkerCommand extends DaemonCommand implements LoggerAwareInterface
             return $jobQueue->retrieve($this->queue);
         } catch (\Exception $e) {
             $this->logException($logger, "Failed to retrieve job due to error '{$e->getMessage()}'", $e);
-            $this->queueContinue = false;
             $this->shutdown();
             throw $e;
         }
